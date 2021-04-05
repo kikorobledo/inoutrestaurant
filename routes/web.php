@@ -17,6 +17,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::view('/users', 'users')->name('users');
+
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');

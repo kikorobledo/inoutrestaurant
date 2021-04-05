@@ -3,6 +3,6 @@
 
 @section('content')
 
-    @livewire('admin-users')
+    @livewire('admin-categories')
 
 @stop
