@@ -62,8 +62,17 @@ class AdminUsers extends Component
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-        }else{
-            $users = User::where('created_by', '=', auth()->user()->id)
+        }elseif(auth()->user()->roles[0]->id == 2 && auth()->user()->establishment != null){
+            $users = User::where('establishment_id', '=', auth()->user()->establishment->id)
+                            ->where(function($q){
+                                return $q->where('name', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                            })
+                            ->orderBy($this->sort, $this->direction)
+                            ->paginate(10);
+        }
+        else{
+            $users = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('email', 'LIKE', '%' . $this->search . '%');
@@ -121,7 +130,7 @@ class AdminUsers extends Component
             'status' => $this->status,
             'password' => 'password',
             'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment->id
+            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
         ]);
 
         $user->roles()->attach($this->role);
@@ -146,6 +155,7 @@ class AdminUsers extends Component
             'name' => $this->name,
             'email' => $this->email,
             'status' => $this->status,
+            'updated_by' => auth()->user()->id,
         ]);
 
         $user->roles()->sync($this->role);

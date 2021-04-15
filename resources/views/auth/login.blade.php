@@ -6,6 +6,14 @@
 
         <x-jet-validation-errors class="mb-4" />
 
+        @if(session('message'))
+
+            <div class="bg-yellow-100 p-4 text-gray-400 rounded-lg mb-4">
+                <p>{{ session('message') }}</p>
+            </div>
+
+        @endif
+
         @if (session('status'))
             <div class="mb-4 font-medium text-sm text-green-600">
                 {{ session('status') }}

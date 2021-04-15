@@ -9,5 +9,22 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','created_by','establishment_id'];
+    protected $fillable = [
+        'name',
+        'created_by',
+        'establishment_id',
+        'updated_by'
+    ];
+
+    public function establishmentBelonging(){
+        return $this->belongsTo(Establishment::class, 'establishment_id');
+    }
+
+    public function createdBy(){
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(){
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

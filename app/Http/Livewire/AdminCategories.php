@@ -53,13 +53,14 @@ class AdminCategories extends Component
             $categories = Category::where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
-        }elseif(auth()->user()->roles[0]->id == 2){
+        }elseif(auth()->user()->roles[0]->id == 2 && auth()->user()->establishment != null){
             $categories = Category::where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%');
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+
         }else{
             $categories = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
@@ -112,7 +113,7 @@ class AdminCategories extends Component
         $category = Category::create([
             'name' => $this->name,
             'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment->id,
+            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
         ]);
 
         $this->message = "La categoría ha sido creada con exito.";
@@ -128,7 +129,8 @@ class AdminCategories extends Component
         $this->validate();
 
         $category->update([
-            'name' => $this->name
+            'name' => $this->name,
+            'updated_by' => auth()->user()->id,
         ]);
 
         $this->message = "La categoría ha sido actualizada con exito.";

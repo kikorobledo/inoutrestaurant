@@ -33,7 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'status',
         'created_by',
-        'establishment_id'
+        'establishment_id',
+        'updated_by'
     ];
 
     /**
@@ -74,7 +75,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Establishment::class, 'establishment_id');
     }
 
-    public function admin(){
+    public function createdBy(){
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(){
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

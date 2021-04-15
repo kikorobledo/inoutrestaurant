@@ -128,10 +128,14 @@
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Registrado</span>
+                            <span class="font-semibold">Registrado por: {{$category->createdBy->name}}</span> <br>
                             {{ $category->created_at->diffForHumans() }}
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Actualizado</span>
+                            @if($category->updatedBy != null)
+                                <span class="font-semibold">Actualizado por: {{$category->updatedBy->name}}</span> <br>
+                            @endif
                             {{ $category->updated_at->diffForHumans() }}
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">

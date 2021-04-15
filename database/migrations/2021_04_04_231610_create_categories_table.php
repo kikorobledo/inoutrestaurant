@@ -18,6 +18,7 @@ class CreateCategoriesTable extends Migration
             $table->string('name')->unique();
             $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('created_by')->constrained()->onDelete('cascade')->references('id')->on('users');
+            $table->foreignId('updated_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
             $table->timestamps();
         });
     }

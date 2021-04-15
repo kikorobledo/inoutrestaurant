@@ -12,7 +12,7 @@ class Establishment extends Model
 
     protected $fillable = [
         'name',
-        'slug',
+        'email',
         'address',
         'telephone',
         'user_id'

@@ -16,6 +16,7 @@ class CreateEstablishmentsTable extends Migration
         Schema::create('establishments', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('email')->nullable()->unique();
             $table->string('address')->nullable();
             $table->string('telephone')->nullable();
             $table->timestamps();
