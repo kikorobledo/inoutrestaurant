@@ -49,9 +49,25 @@ class AdminCategories extends Component
     public function render()
     {
 
-        $categories = Category::where('name', 'LIKE', '%' . $this->search . '%')
+        if(auth()->user()->roles[0]->id == 1){
+            $categories = Category::where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
+        }elseif(auth()->user()->roles[0]->id == 2){
+            $categories = Category::where('establishment_id', '=', auth()->user()->establishment->id)
+                            ->where(function($q){
+                                return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                            })
+                            ->orderBy($this->sort, $this->direction)
+                            ->paginate(10);
+        }else{
+            $categories = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+                            ->where(function($q){
+                                return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                            })
+                            ->orderBy($this->sort, $this->direction)
+                            ->paginate(10);
+        }
 
         return view('livewire.admin-categories', compact('categories'));
     }
@@ -94,7 +110,9 @@ class AdminCategories extends Component
         $this->validate();
 
         $category = Category::create([
-            'name' => $this->name
+            'name' => $this->name,
+            'created_by' => auth()->user()->id,
+            'establishment_id' => auth()->user()->establishment->id,
         ]);
 
         $this->message = "La categoría ha sido creada con exito.";

@@ -6,9 +6,14 @@ use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 
-Route::get('', [HomeController::class, 'index'])->name('admin.index');
 
-Route::get('profile', [AdminProfile::class, 'index'])->name('admin.profile');
+Route::group(['middleware' => ['auth','verified']], function () {
 
-Route::resource('users', UserController::class)->except(['show', 'create', 'edit'])->names('admin.users');
-Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit'])->names('admin.categories');
+    Route::get('', [HomeController::class, 'index'])->name('admin.index');
+
+    Route::get('profile', [AdminProfile::class, 'index'])->name('admin.profile');
+
+    Route::resource('users', UserController::class)->except(['show', 'create', 'edit'])->names('admin.users');
+    Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit'])->names('admin.categories');
+
+});

@@ -210,13 +210,13 @@
 
                 @if($create)
 
-                    <button wire:click="create" class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">Guardar</button>
+                    <button wire:click="create" wire:loading.attr="disabled" class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">Guardar</button>
 
                 @endif
 
                 @if($edit)
 
-                    <button wire:click="update" class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">Actualizar</button>
+                    <button wire:click="update" wire:loading.attr="disabled" class="bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">Actualizar</button>
 
                 @endif
 

@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->enum('status',['activo','inactivo'])->default('activo');
             $table->foreignId('created_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
+            $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->text('profile_photo_path')->nullable();

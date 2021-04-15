@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Carbon\Carbon;
 use App\Models\User;
 use Spatie\Permission\Guard;
+use App\Models\Establishment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -67,6 +68,7 @@ class UserSeeder extends Seeder
         $users = User::all();
         foreach ($users as $user) {
             $user->roles()->attach(2);
+            Establishment::create(['user_id' => $user->id]);
         }
 
         User::first()->roles()->sync(1);

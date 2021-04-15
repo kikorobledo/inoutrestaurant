@@ -5,6 +5,8 @@ namespace App\Http\Livewire;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\URL;
+use App\Notifications\EmployeeNotification;
 
 class AdminUsers extends Component
 {
@@ -55,10 +57,20 @@ class AdminUsers extends Component
 
     public function render()
     {
-        $users = User::where('name', 'LIKE', '%' . $this->search . '%')
-                        ->orWhere('email', 'LIKE', '%' . $this->search . '%')
-                        ->orderBy($this->sort, $this->direction)
-                        ->paginate(10);
+        if(auth()->user()->roles[0]->id == 1){
+            $users = User::where('name', 'LIKE', '%' . $this->search . '%')
+                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                            ->orderBy($this->sort, $this->direction)
+                            ->paginate(10);
+        }else{
+            $users = User::where('created_by', '=', auth()->user()->id)
+                            ->where(function($q){
+                                return $q->where('name', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                            })
+                            ->orderBy($this->sort, $this->direction)
+                            ->paginate(10);
+        }
 
         return view('livewire.admin-users', compact('users'));
     }
@@ -107,10 +119,16 @@ class AdminUsers extends Component
             'name' => $this->name,
             'email' => $this->email,
             'status' => $this->status,
-            'password' => 'password'
+            'password' => 'password',
+            'created_by' => auth()->user()->id,
+            'establishment_id' => auth()->user()->establishment->id
         ]);
 
         $user->roles()->attach($this->role);
+
+        $url = URL::signedRoute('invitation', $user);
+
+        $user->notify(new EmployeeNotification($url, auth()->user()));
 
         $this->message = "El usuario ha sido creado con exito.";
         $this->emit('showMessage');

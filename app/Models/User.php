@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Establishment;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Jetstream\HasProfilePhoto;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
+
 {
     use HasApiTokens;
     use HasFactory;
@@ -29,7 +31,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'status'
+        'status',
+        'created_by',
+        'establishment_id'
     ];
 
     /**
@@ -61,4 +65,16 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function establishment(){
+        return $this->hasOne(Establishment::class);
+    }
+
+    public function establishmentBelonging(){
+        return $this->belongsTo(Establishment::class, 'establishment_id');
+    }
+
+    public function admin(){
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

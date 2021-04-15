@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\SetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,13 +14,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::view('/users', 'users')->name('users');
+Route::group(['middleware' => 'auth'], function(){
+    Route::get('setpassword', [SetPasswordController::class, 'create'])->name('setpassword');
+    Route::post('setpassword/{user}', [SetPasswordController::class, 'store'])->name('setpassword.store');
+});
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::get('invitation/{user}', [UserController::class, 'invitation'])->name('invitation');
