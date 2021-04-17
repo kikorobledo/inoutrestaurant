@@ -16,11 +16,18 @@ class IsEstablishmentUpdatedMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if(auth()->user()->establishment->name == null ||
-            auth()->user()->establishment->email == null ||
-            auth()->user()->establishment->name == null ||
-            auth()->user()->establishment->address == null ||
-            auth()->user()->establishment->telephone == null
+
+        if(auth()->user()->establishment == null){
+            $user = auth()->user()->createdBy;
+        }else{
+            $user = auth()->user();
+        }
+
+        if($user->establishment->name == null ||
+            $user->establishment->email == null ||
+            $user->establishment->name == null ||
+            $user->establishment->address == null ||
+            $user->establishment->telephone == null
             )
         {
             return redirect()->route('admin.profile')->with('message', 'Actualiza los datos de tu establecimiento para poder comenzar a user el sistema InOut.');;

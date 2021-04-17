@@ -4,7 +4,15 @@
             <x-jet-authentication-card-logo />
         </x-slot>
 
-        <h1 class="text-gray-600">Ingresa tu contraseña</h1>
+        @if(session('message'))
+
+            <div class="mb-4">
+
+                <p>{{ session('message') }}</p>
+
+            </div>
+
+        @endif
 
         <x-jet-validation-errors class="mb-4" />
 

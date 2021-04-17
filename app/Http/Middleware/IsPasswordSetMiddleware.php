@@ -17,7 +17,7 @@ class IsPasswordSetMiddleware
     public function handle(Request $request, Closure $next)
     {
         if(auth()->check() && auth()->user()->password == 'password' && !$request->is('setpassword') && !$request->password){
-            return redirect()->route('setpassword');
+            return redirect()->route('setpassword')->with('message', 'Ingresa tu nueva contraseña.');
         }
 
         return $next($request);
