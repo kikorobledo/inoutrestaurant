@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'name' => 'Kiko',
             'email' => 'correo@correo.com',
             'email_verified_at' => Carbon::now(),
+            'role'=> 1,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
@@ -32,6 +33,7 @@ class UserSeeder extends Seeder
             'name' => 'May',
             'email' => 'correo2@correo.com',
             'email_verified_at' => Carbon::now(),
+            'role'=> 2,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
@@ -41,6 +43,7 @@ class UserSeeder extends Seeder
             'name' => 'Javi',
             'email' => 'correo3@correo.com',
             'email_verified_at' => Carbon::now(),
+            'role'=> 2,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
@@ -51,6 +54,7 @@ class UserSeeder extends Seeder
             'name' => 'Fer',
             'email' => 'correo4@correo.com',
             'email_verified_at' => Carbon::now(),
+            'role'=> 2,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
@@ -60,6 +64,7 @@ class UserSeeder extends Seeder
             'name' => 'Agus',
             'email' => 'correo5@correo.com',
             'email_verified_at' => Carbon::now(),
+            'role'=> 2,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()

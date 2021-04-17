@@ -30,7 +30,7 @@
                 <x-jet-section-border />
             @endif
 
-            @if(auth()->user()->roles[0]->id == 1 || auth()->user()->roles[0]->id == 2 && auth()->user()->createdBy == null)
+            @if(auth()->user()->role == 1 || auth()->user()->role == 2 && auth()->user()->createdBy == null)
 
                 <div class="mt-10 sm:mt-0">
 

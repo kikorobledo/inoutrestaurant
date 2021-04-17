@@ -49,11 +49,11 @@ class AdminCategories extends Component
     public function render()
     {
 
-        if(auth()->user()->roles[0]->id == 1){
+        if(auth()->user()->role == 1){
             $categories = Category::where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
-        }elseif(auth()->user()->roles[0]->id == 2 && auth()->user()->establishment != null){
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $categories = Category::where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%');

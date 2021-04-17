@@ -16,7 +16,7 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if(auth()->user()->roles[0]->id == 3 || auth()->user()->roles[0]->id == 4){
+        if(auth()->user()->role == 3 || auth()->user()->role == 4){
             return redirect()->route('admin.index');
         }
 

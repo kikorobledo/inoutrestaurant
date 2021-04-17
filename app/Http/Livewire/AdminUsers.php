@@ -57,12 +57,12 @@ class AdminUsers extends Component
 
     public function render()
     {
-        if(auth()->user()->roles[0]->id == 1){
+        if(auth()->user()->role == 1){
             $users = User::where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-        }elseif(auth()->user()->roles[0]->id == 2 && auth()->user()->establishment != null){
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $users = User::where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
@@ -108,7 +108,7 @@ class AdminUsers extends Component
 
         $user = User::findorFail($this->user_id);
 
-        $this->role = $user->roles[0]->id;
+        $this->role = $user->role;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->status = $user->status;
@@ -130,10 +130,9 @@ class AdminUsers extends Component
             'status' => $this->status,
             'password' => 'password',
             'created_by' => auth()->user()->id,
+            'role' => $this->role,
             'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
         ]);
-
-        $user->roles()->attach($this->role);
 
         $url = URL::signedRoute('invitation', $user);
 
@@ -155,10 +154,9 @@ class AdminUsers extends Component
             'name' => $this->name,
             'email' => $this->email,
             'status' => $this->status,
+            'role' => $this->role,
             'updated_by' => auth()->user()->id,
         ]);
-
-        $user->roles()->sync($this->role);
 
         $this->message = "El usuario ha sido actualizado con exito.";
         $this->emit('showMessage');

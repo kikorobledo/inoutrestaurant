@@ -35,7 +35,7 @@
 
                     <p class="uppercase text-md text-gray-600 mb-4 tracking-wider">Administración</p>
 
-                    @if(auth()->user()->roles[0]->id == 1 || auth()->user()->roles[0]->id == 2 )
+                    @if(auth()->user()->role == 1 || auth()->user()->role == 2 )
 
                         <a href="{{ route('admin.users.index') }}" class="mb-3 capitalize font-medium text-md hover:text-teal-600 transition ease-in-out duration-500 flex hover  hover:bg-gray-100 p-2 px-4 rounded-xl">
 

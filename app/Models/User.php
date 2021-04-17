@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'status',
+        'role',
         'created_by',
         'establishment_id',
         'updated_by'
@@ -66,6 +67,20 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function getRoleNameAttribute(){
+
+        if($this->role == 1)
+            $name = "Administrador";
+        elseif( $this->role == 2)
+            $name = "Administrador Tienda";
+        elseif( $this->role == 3)
+            $name = "Empleado";
+        elseif( $this->role == 4)
+            $name = "Empleado Especial";
+
+        return $name;
+    }
 
     public function establishment(){
         return $this->hasOne(Establishment::class);

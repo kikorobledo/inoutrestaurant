@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('status',['activo','inactivo'])->default('activo');
+            $table->integer('role');
             $table->foreignId('created_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
             $table->foreignId('updated_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
             $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
