@@ -2,13 +2,11 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\User;
+use App\Models\Client;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\URL;
-use App\Notifications\EmployeeNotification;
 
-class AdminUsers extends Component
+class AdminClients extends Component
 {
 
     use WithPagination;
@@ -22,11 +20,10 @@ class AdminUsers extends Component
     public $sort = 'id';
     public $direction = 'desc';
 
-    public $user_id;
+    public $client_id;
     public $name;
     public $email;
-    public $status;
-    public $role;
+    public $telephone;
 
     public function updatingSearch(){
         $this->resetPage();
@@ -49,44 +46,46 @@ class AdminUsers extends Component
     protected function rules(){
         return[
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,'. $this->user_id,
-            'status' => 'required|in:activo,inactivo',
-            'role' => 'required|integer|in:2,3,4'
+            'email' => 'required|email|unique:clients,email,'. $this->client_id,
+            'telephone' => 'integer'
         ];
     }
 
     public function render()
     {
         if(auth()->user()->role == 1){
-            $users = User::where('name', 'LIKE', '%' . $this->search . '%')
+            $clients = Client::where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                            ->orWhere('telephone', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $users = User::where('establishment_id', '=', auth()->user()->establishment->id)
+            $clients = Client::where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
-                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('telephone', 'LIKE', '%' . $this->search . '%');
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
         }
         else{
-            $users = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $clients = Client::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
-                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('telephone', 'LIKE', '%' . $this->search . '%');
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
         }
 
-        return view('livewire.admin-users', compact('users'));
+        return view('livewire.admin-clients', compact('clients'));
     }
 
     public function openModalCreate(){
 
-        $this->reset('name','email','status', 'role', 'user_id');
+        $this->reset('name','email','telephone', 'client_id');
         $this->resetErrorBag();
         $this->resetValidation();
 
@@ -95,7 +94,7 @@ class AdminUsers extends Component
         $this->create = true;
     }
 
-    public function openModalEdit($user){
+    public function openModalEdit($client){
 
         $this->resetErrorBag();
         $this->resetValidation();
@@ -104,43 +103,42 @@ class AdminUsers extends Component
         $this->modal = true;
         $this->edit = true;
 
-        $this->user_id = $user['id'];
+        $this->client_id = $client['id'];
 
-        $user = User::findorFail($this->user_id);
+        $client = Client::findorFail($this->client_id);
 
-        $this->role = $user->role;
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->status = $user->status;
+        $this->name = $client->name;
+        $this->email = $client->email;
+        $this->telephone = $client->telephone;
     }
 
-    public function openModalDelete($user){
+    public function openModalDelete($client){
 
         $this->modalDelete = true;
-        $this->user_id = $user['id'];
+        $this->client_id = $client['id'];
+    }
+
+    public function closeModal(){
+        $this->reset('name','email','telephone', 'client_id');
+        $this->modal = false;
+        $this->modalDelete = false;
+        $this->create = false;
+        $this->edit = false;
     }
 
     public function create(){
 
         $this->validate();
 
-        $user = User::create([
+        $client = Client::create([
             'name' => $this->name,
             'email' => $this->email,
-            'status' => $this->status,
-            'password' => 'password',
+            'telephone' => $this->telephone,
             'created_by' => auth()->user()->id,
-            'role' => $this->role,
             'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
         ]);
 
-        $user->roles()->attach($this->role);
-
-        $url = URL::signedRoute('invitation', $user);
-
-        $user->notify(new EmployeeNotification($url, auth()->user()));
-
-        $this->message = "El usuario ha sido creado con exito.";
+        $this->message = "El cliente ha sido creado con exito.";
         $this->emit('showMessage');
 
         $this->closeModal();
@@ -148,21 +146,18 @@ class AdminUsers extends Component
 
     public function update(){
 
-        $user = User::findorFail($this->user_id);
+        $client = Client::findorFail($this->client_id);
 
         $this->validate();
 
-        $user->update([
+        $client->update([
             'name' => $this->name,
             'email' => $this->email,
-            'status' => $this->status,
-            'role' => $this->role,
+            'telephone' => $this->telephone,
             'updated_by' => auth()->user()->id,
         ]);
 
-        $user->roles()->sync($this->role);
-
-        $this->message = "El usuario ha sido actualizado con exito.";
+        $this->message = "El cliente ha sido actualizado con exito.";
         $this->emit('showMessage');
 
         $this->closeModal();
@@ -170,21 +165,12 @@ class AdminUsers extends Component
 
     public function delete(){
 
-        $user = User::findorFail($this->user_id);
-        $user->delete();
+        $client = Client::findorFail($this->client_id);
+        $client->delete();
 
-        $this->message = "El usuario ha sido eliminado con exito.";
+        $this->message = "El cliente ha sido eliminado con exito.";
         $this->emit('showMessage');
 
         $this->closeModal();
     }
-
-    public function closeModal(){
-        $this->reset('name','email','status', 'role', 'user_id');
-        $this->modal = false;
-        $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
-    }
-
 }

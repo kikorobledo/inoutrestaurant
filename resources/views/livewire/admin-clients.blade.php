@@ -8,7 +8,7 @@
             x-init="@this.on('showMessage', () => { show=true, setTimeout( () => {show=false;}, 4000 ) })"
         >
 
-            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Usuarios</h1>
+            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Clientes</h1>
 
             <span
                 class="bg-green-500 py-2 px-4 text-white text-md rounded-full float-right"
@@ -23,13 +23,13 @@
 
             <input type="text" wire:model="search" placeholder="Buscar" class="bg-white rounded-full text-sm">
 
-            <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none">Agregar Nuevo Usuario</button>
+            <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none">Agregar Nuevo Cliente</button>
 
         </div>
 
     </div>
 
-    @if($users->count())
+    @if($clients->count())
 
         <table class="rounded-lg shadow-xl w-full overflow-hidden">
 
@@ -90,27 +90,9 @@
                             </svg>
                         @endif
                     </th>
-                    <th wire:click="order('role')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
-                        Rol
-                        @if($sort == 'role')
-                            @if($direction == 'asc')
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
-                                </svg>
-                            @else
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                                </svg>
-                            @endif
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                        @endif
-                    </th>
-                    <th wire:click="order('status')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
-                        Estado
-                        @if($sort == 'status')
+                    <th wire:click="order('telephone')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Teléfono
+                        @if($sort == 'telephone')
                             @if($direction == 'asc')
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
@@ -169,7 +151,7 @@
 
             <tbody class="divide-y divide-gray-200 flex-1 sm:flex-none">
 
-                @foreach($users as $user)
+                @foreach($clients as $client)
 
                     <tr class="text-sm font-medium text-gray-500 bg-white flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -182,12 +164,9 @@
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Nombre</span>
                             <div class="flex items-center justify-center lg:justify-start">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}">
-                                </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
-                                    {{ $user->name }}
+                                    {{ $client->name }}
                                     </div>
                                 </div>
                             </div>
@@ -196,41 +175,31 @@
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Email</span>
-                            {{ $user->email }}
+                            {{ $client->email }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
-                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Role</span>
-                            {{ $user->role_name }}
-
-                        </td>
-                        <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
-
-                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Status</span>
-                            @if($user->status == 'activo')
-                                <span class="bg-green-400 py-1 px-2 rounded-full text-white">{{ ucfirst($user->status) }}</span>
-                            @else
-                                <span class="bg-red-400 py-1 px-2 rounded-full text-white">{{ ucfirst($user->status) }}</span>
-                            @endif
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Teléfono</span>
+                            {{ $client->telephone }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Registrado</span>
-                            @if($user->created_by != null)
-                                <span class="font-semibold">Registrado por: {{$user->createdBy->name}}</span> <br>
+                            @if($client->created_by != null)
+                                <span class="font-semibold">Registrado por: {{$client->createdBy->name}}</span> <br>
                             @endif
-                            {{ $user->created_at->diffForHumans() }}
+                            {{ $client->created_at->diffForHumans() }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Actualizado</span>
-                            @if($user->updated_by != null)
-                                <span class="font-semibold">Actualizado por: {{$user->updatedBy->name}}</span> <br>
+                            @if($client->updated_by != null)
+                                <span class="font-semibold">Actualizado por: {{$client->updatedBy->name}}</span> <br>
                             @endif
-                            {{ $user->updated_at->diffForHumans() }}
+                            {{ $client->updated_at->diffForHumans() }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
@@ -239,14 +208,14 @@
 
                             <div class="flex justify-center lg:justify-start">
 
-                                <button wire:click="openModalEdit({{$user}})" class="bg-blue-400 hover:shadow-lg text-white  px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
+                                <button wire:click="openModalEdit({{$client}})" class="bg-blue-400 hover:shadow-lg text-white  px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                     <p>Editar</p>
                                 </button>
 
-                                <button wire:click="openModalDelete({{$user}})" class="bg-red-400 hover:shadow-lg text-white  px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
+                                <button wire:click="openModalDelete({{$client}})" class="bg-red-400 hover:shadow-lg text-white  px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -265,7 +234,7 @@
             <tfoot class="border-b border-gray-300 bg-gray-50">
                 <tr>
                     <td colspan="8" class="py-2 px-5">
-                        {{ $users->links()}}
+                        {{ $clients->links()}}
                     </td>
                 </tr>
             </tfoot>
@@ -285,7 +254,7 @@
     <x-jet-dialog-modal wire:model="modal">
 
         <x-slot name="title">
-            Nuevo Usuario
+            Nuevo Cliente
         </x-slot>
 
         <x-slot name="content">
@@ -316,40 +285,15 @@
                     </div>
                 </div>
 
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
-
-                <div class="flex-auto mr-1 ">
+                <div class="flex-auto ">
                     <div>
-                        <Label>Status</Label>
+                        <Label>Teléfono</Label>
                     </div>
                     <div>
-                        <select class="bg-white rounded text-sm w-full" wire:model="status">
-                            <option value="">Seleccione una opción</option>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                        </select>
+                        <input type="tel" class="bg-white rounded text-sm w-full" wire:model="telephone">
                     </div>
                     <div>
-                        @error('status') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div class="flex-auto mr-1 ">
-                    <div>
-                        <Label>Role</Label>
-                    </div>
-                    <div>
-                        <select class="bg-white rounded text-sm w-full" wire:model="role">
-                            <option value="">Seleccione una opción</option>
-                            <option value="2">Administrador Tienda</option>
-                            <option value="3">Empleado</option>
-                            <option value="4">Empleado Especial</option>
-                        </select>
-                    </div>
-                    <div>
-                        @error('role') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                        @error('telephone') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
@@ -396,11 +340,11 @@
 
     <x-jet-confirmation-modal wire:model="modalDelete">
         <x-slot name="title">
-            Eliminar Usuario
+            Eliminar Cliente
         </x-slot>
 
         <x-slot name="content">
-            ¿Esta seguro que desea eliminar al usuario?, No sera posible recuperar la información.
+            ¿Esta seguro que desea eliminar al cliente?, No sera posible recuperar la información.
         </x-slot>
 
         <x-slot name="footer">
