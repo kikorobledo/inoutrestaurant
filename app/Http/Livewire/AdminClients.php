@@ -47,7 +47,7 @@ class AdminClients extends Component
         return[
             'name' => 'required',
             'email' => 'required|email|unique:clients,email,'. $this->client_id,
-            'telephone' => 'integer'
+            'telephone' => 'required'
         ];
     }
 

@@ -8,7 +8,7 @@
             x-init="@this.on('showMessage', () => { show=true, setTimeout( () => {show=false;}, 4000 ) })"
         >
 
-            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Clientes</h1>
+            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Productos</h1>
 
             <span
                 class="bg-green-500 py-2 px-4 text-white text-md rounded-full float-right"
@@ -23,13 +23,15 @@
 
             <input type="text" wire:model="search" placeholder="Buscar" class="bg-white rounded-full text-sm">
 
-            <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none">Agregar Nuevo Cliente</button>
+            @if(auth()->user()->roles[0]->name != 'Empleado')
+                <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none">Agregar Nuevo Producto</button>
+            @endif
 
         </div>
 
     </div>
 
-    @if($clients->count())
+    @if($products->count())
 
         <table class="rounded-lg shadow-xl w-full overflow-hidden">
 
@@ -72,9 +74,9 @@
                             </svg>
                         @endif
                     </th>
-                    <th wire:click="order('email')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
-                        Correo
-                        @if($sort == 'email')
+                    <th wire:click="order('description')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Descripción
+                        @if($sort == 'description')
                             @if($direction == 'asc')
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
@@ -90,9 +92,63 @@
                             </svg>
                         @endif
                     </th>
-                    <th wire:click="order('telephone')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
-                        Teléfono
-                        @if($sort == 'telephone')
+                    <th wire:click="order('stock')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Stock
+                        @if($sort == 'stock')
+                            @if($direction == 'asc')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                                </svg>
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                            @endif
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        @endif
+                    </th>
+                    <th wire:click="order('purchase_price')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Precio de compra
+                        @if($sort == 'purchase_price')
+                            @if($direction == 'asc')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                                </svg>
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                            @endif
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        @endif
+                    </th>
+                    <th wire:click="order('sale_price')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Precio de venta
+                        @if($sort == 'sale_price')
+                            @if($direction == 'asc')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                                </svg>
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                            @endif
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        @endif
+                    </th>
+                    <th wire:click="order('category_id')" class="cursor-pointer px-6 py-3 hidden lg:table-cell">
+                        Categoría
+                        @if($sort == 'category_id')
                             @if($direction == 'asc')
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
@@ -153,7 +209,7 @@
 
             <tbody class="divide-y divide-gray-200 flex-1 sm:flex-none">
 
-                @foreach($clients as $client)
+                @foreach($products as $product)
 
                     <tr class="text-sm font-medium text-gray-500 bg-white flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -166,9 +222,16 @@
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Nombre</span>
                             <div class="flex items-center justify-center lg:justify-start">
+                                <div class="flex-shrink-0 ">
+                                    @if($product->image_url)
+                                        <img class="w-20 rounded" src="/storage/{{ $product->image_url }}" alt="{{ $product->name }}">
+                                    @else
+                                        <img class="w-20 rounded" src="{{ asset('storage/img/icono.png') }}" alt="{{ $product->name }}">
+                                    @endif
+                                </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
-                                    {{ $client->name }}
+                                    {{ $product->name }}
                                     </div>
                                 </div>
                             </div>
@@ -176,32 +239,57 @@
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
-                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Email</span>
-                            {{ $client->email }}
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Descripción</span>
+                            {{ $product->description }}
+
+                        </td>
+                        <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center  lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Stock</span>
+
+                            @if($product->stock >= 20)
+                                <span class="bg-green-400 text-white rounded-full py-1 px-4">{{ $product->stock }}</span>
+                            @elseif($product->stock <= 20 && $product->stock > 10)
+                                <span class="bg-yellow-400 text-white rounded-full py-1 px-4">{{ $product->stock }}</span>
+                            @elseif($product->stock <= 10)
+                                <span class="bg-red-400 text-white rounded-full py-1 px-4">{{ $product->stock }}</span>
+                            @endif
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
-                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Teléfono</span>
-                            {{ $client->telephone }}
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Precio de compra</span>
+                            $ {{ $product->purchase_price }}
+
+                        </td>
+                        <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Precio de venta</span>
+                            $ {{ $product->sale_price }}
+
+                        </td>
+                        <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
+
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Categoría</span>
+                            {{ $product->category->name }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Registrado</span>
-                            @if($client->created_by != null)
-                                <span class="font-semibold">Registrado por: {{$client->createdBy->name}}</span> <br>
+                            @if($product->created_by != null)
+                                <span class="font-semibold">Registrado por: {{$product->createdBy->name}}</span> <br>
                             @endif
-                            {{ $client->created_at->diffForHumans() }}
+                            {{ $product->created_at->diffForHumans() }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Actualizado</span>
-                            @if($client->updated_by != null)
-                                <span class="font-semibold">Actualizado por: {{$client->updatedBy->name}}</span> <br>
+                            @if($product->updated_by != null)
+                                <span class="font-semibold">Actualizado por: {{$product->updatedBy->name}}</span> <br>
                             @endif
-                            {{ $client->updated_at->diffForHumans() }}
+                            {{ $product->updated_at->diffForHumans() }}
 
                         </td>
                         @if(auth()->user()->roles[0]->name != 'Empleado')
@@ -211,7 +299,7 @@
 
                                 <div class="flex justify-center lg:justify-start">
 
-                                    <button wire:click="openModalEdit({{$client}})" class="bg-blue-400 hover:shadow-lg text-white  px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
+                                    <button wire:click="openModalEdit({{$product}})" class="bg-blue-400 hover:shadow-lg text-white  px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
@@ -219,7 +307,7 @@
                                     </button>
 
                                     @if(auth()->user()->roles[0]->name != 'Empleado Especial')
-                                        <button wire:click="openModalDelete({{$client}})" class="bg-red-400 hover:shadow-lg text-white  px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
+                                        <button wire:click="openModalDelete({{$product}})" class="bg-red-400 hover:shadow-lg text-white  px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -239,8 +327,8 @@
 
             <tfoot class="border-b border-gray-300 bg-gray-50">
                 <tr>
-                    <td colspan="8" class="py-2 px-5">
-                        {{ $clients->links()}}
+                    <td colspan="10" class="py-2 px-5">
+                        {{ $products->links()}}
                     </td>
                 </tr>
             </tfoot>
@@ -260,7 +348,7 @@
     <x-jet-dialog-modal wire:model="modal">
 
         <x-slot name="title">
-            Nuevo Cliente
+            Nuevo Producto
         </x-slot>
 
         <x-slot name="content">
@@ -281,26 +369,135 @@
 
                 <div class="flex-auto ">
                     <div>
-                        <Label>Email</Label>
+                        <Label>Stock</Label>
                     </div>
                     <div>
-                        <input type="email" class="bg-white rounded text-sm w-full" wire:model="email">
+                        <input type="number" class="bg-white rounded text-sm w-full" wire:model="stock">
                     </div>
                     <div>
-                        @error('email') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                        @error('stock') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
                 <div class="flex-auto ">
                     <div>
-                        <Label>Teléfono</Label>
+                        <Label>Categoría</Label>
                     </div>
                     <div>
-                        <input type="tel" class="bg-white rounded text-sm w-full" wire:model="telephone">
+
+                        <select wire:model="category_id" class="bg-white rounded text-sm w-full">
+
+                            <option value="">Seleccione una categoría</option>
+
+                            @foreach($categories as $category)
+
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+
+                            @endforeach
+
+                        </select>
                     </div>
                     <div>
-                        @error('telephone') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                        @error('category_id') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
                     </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                <div class="flex-auto ">
+                    <div>
+                        <Label>Precio de compra</Label>
+                    </div>
+                    <div>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">
+                                $
+                                </span>
+                            </div>
+                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model="purchase_price" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        @error('purchase_price') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <div class="flex-auto ">
+                    <div>
+                        <Label>Precio de venta</Label>
+                    </div>
+                    <div>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">
+                                $
+                                </span>
+                            </div>
+                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model="sale_price" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        @error('sale_price') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                <div class="flex-auto ">
+                    <div>
+                        <Label>Descripción</Label>
+                    </div>
+                    <div>
+                        <textarea rows="2" class="bg-white rounded text-sm w-full" wire:model="description"></textarea>
+                    </div>
+                    <div>
+                        @error('description') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+
+                <div x-data="{photoName: null}"  class="flex-auto ">
+
+                    <button type="button" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 mb-5 mt-2 text-sm py-2 px-4 text-white rounded-full focus:outline-none"
+                            x-on:click="$refs.photo.click()"
+                    >
+                        Selecciona la imágen del producto
+                    </button>
+
+                    <input type="file" class="hidden" wire:model="image" x-ref="photo">
+
+                    <div class="mt-2">
+
+                        @if($image)
+
+                            <img class="rounded h-40  object-cover" src="{{ $image->temporaryUrl() }}" alt="Imagen del producto">
+
+                        @else
+
+                            @if (!$image && isset($image_url))
+
+                                <img class="rounded h-40 object-cover" src="/storage/{{ $image_url }}" class="w-50 p-4">
+
+                            @else
+
+                                <img class="rounded h-40 object-cover" src="{{ asset('storage/img/icono.png') }}" alt="Imagen del producto">
+
+                            @endif
+
+                        @endif
+
+                    </div>
+
+                    @error('image') <span class="block font-medium text-sm text-red-500">{{ $message }}</span> @enderror
+
                 </div>
 
             </div>
@@ -315,6 +512,7 @@
                     <button
                         wire:click="create"
                         wire:loading.attr="disabled"
+                        wire:target="create, image"
                         class="disabled:opacity-25 bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
                         Guardar
                     </button>
@@ -326,6 +524,7 @@
                     <button
                         wire:click="update"
                         wire:loading.attr="disabled"
+                        wire:target="update, image"
                         class="disabled:opacity-25 bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
                         Actualizar
                     </button>
@@ -350,7 +549,7 @@
         </x-slot>
 
         <x-slot name="content">
-            ¿Esta seguro que desea eliminar al cliente?, No sera posible recuperar la información.
+            ¿Esta seguro que desea eliminar el producto?, No sera posible recuperar la información.
         </x-slot>
 
         <x-slot name="footer">
@@ -380,6 +579,5 @@
             });
         });
     </script>
-
 
 </div>
