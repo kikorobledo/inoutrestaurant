@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddUserId extends Migration
+class AddEstablishmentIdToUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddUserId extends Migration
      */
     public function up()
     {
-        Schema::table('establishments', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 
@@ -25,8 +25,8 @@ class AddUserId extends Migration
      */
     public function down()
     {
-        Schema::table('establishments', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 }

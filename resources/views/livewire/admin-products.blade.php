@@ -1,5 +1,15 @@
 <div class="">
 
+    <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+    </style>
+
     <div class="mb-5">
 
         <div
@@ -24,7 +34,8 @@
             <input type="text" wire:model="search" placeholder="Buscar" class="bg-white rounded-full text-sm">
 
             @if(auth()->user()->roles[0]->name != 'Empleado')
-                <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none">Agregar Nuevo Producto</button>
+                <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar Nuevo Producto</button>
+                <button wire:click="openModalCreate" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none md:hidden">+</button>
             @endif
 
         </div>
@@ -33,7 +44,7 @@
 
     @if($products->count())
 
-        <table class="rounded-lg shadow-xl w-full overflow-hidden">
+        <table class="rounded-lg shadow-xl w-full overflow-hidden table-auto">
 
             <thead class="border-b border-gray-300 bg-gray-50">
 
@@ -224,9 +235,9 @@
                             <div class="flex items-center justify-center lg:justify-start">
                                 <div class="flex-shrink-0 ">
                                     @if($product->image_url)
-                                        <img class="w-20 rounded" src="/storage/{{ $product->image_url }}" alt="{{ $product->name }}">
+                                        <img class="w-10 lg:w-20 rounded" src="/storage/{{ $product->image_url }}" alt="{{ $product->name }}">
                                     @else
-                                        <img class="w-20 rounded" src="{{ asset('storage/img/icono.png') }}" alt="{{ $product->name }}">
+                                        <img class="w-10 lg:w-20 rounded" src="{{ asset('storage/img/icono.png') }}" alt="{{ $product->name }}">
                                     @endif
                                 </div>
                                 <div class="ml-4">
@@ -247,7 +258,9 @@
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Stock</span>
 
-                            @if($product->stock >= 20)
+                            @if($product->stock == -1)
+                                <span class="bg-gray-400 text-white rounded-full py-1 px-4">Alimento</span>
+                            @elseif($product->stock >= 20)
                                 <span class="bg-green-400 text-white rounded-full py-1 px-4">{{ $product->stock }}</span>
                             @elseif($product->stock <= 20 && $product->stock > 10)
                                 <span class="bg-yellow-400 text-white rounded-full py-1 px-4">{{ $product->stock }}</span>
@@ -299,7 +312,7 @@
 
                                 <div class="flex justify-center lg:justify-start">
 
-                                    <button wire:click="openModalEdit({{$product}})" class="bg-blue-400 hover:shadow-lg text-white  px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
+                                    <button wire:click="openModalEdit({{$product}})" class="bg-blue-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
@@ -307,7 +320,7 @@
                                     </button>
 
                                     @if(auth()->user()->roles[0]->name != 'Empleado Especial')
-                                        <button wire:click="openModalDelete({{$product}})" class="bg-red-400 hover:shadow-lg text-white  px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
+                                        <button wire:click="openModalDelete({{$product}})" class="bg-red-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -369,18 +382,6 @@
 
                 <div class="flex-auto ">
                     <div>
-                        <Label>Stock</Label>
-                    </div>
-                    <div>
-                        <input type="number" class="bg-white rounded text-sm w-full" wire:model="stock">
-                    </div>
-                    <div>
-                        @error('stock') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div class="flex-auto ">
-                    <div>
                         <Label>Categoría</Label>
                     </div>
                     <div>
@@ -400,6 +401,28 @@
                     <div>
                         @error('category_id') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
                     </div>
+                </div>
+
+                <div class="flex-auto ">
+                    <div>
+                        <Label>Stock</Label>
+                    </div>
+                    <div>
+                        <div class="relative rounded-md shadow-sm">
+                            <input type="number" class="bg-white rounded text-sm w-full @if($stock == -1) hidden @endif" wire:model="stock" @if($stock == -1) readonly @endif min="-1">
+                            <div class="@if($stock != -1) absolute @endif inset-y-0 right-0 flex items-center">
+                                <select id="selectType" class="@if($stock == -1) w-full py-2 border-gray-500 @endif focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
+                                    <option value="unidades" @if($stock != -1) selected @endif>Unidades</option>
+                                    <option value="alimento" @if($stock == -1) selected @endif>Alimento</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div>
+                        @error('stock') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
                 </div>
 
             </div>
@@ -446,7 +469,7 @@
 
             </div>
 
-            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
+            <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-4">
 
                 <div class="flex-auto ">
                     <div>
@@ -462,11 +485,32 @@
 
             </div>
 
+            @if($stock == -1)
+                <div class="md:space-x-3 mb-5 " id="extras_block">
+
+                    <div class="mb-2">
+                        <Label>Extras</Label>
+                    </div>
+
+                    <div class="flex flex-wrap overflow-y-auto max-h-60">
+                        @foreach($extras as $extra)
+
+                            <label class="border border-gray-500 px-2 rounded-full py-1 mr-2 mb-1 text-sm cursor-pointer">
+                                <input class="bg-white rounded" type="checkbox" wire:model="selected_extras" value="{{ $extra->id }}">
+                                {{ $extra->name }}
+                            </label>
+
+                        @endforeach
+                    </div>
+
+                </div>
+            @endif
+
             <div class="flex flex-col md:flex-row justify-between md:space-x-3 mb-5">
 
                 <div x-data="{photoName: null}"  class="flex-auto ">
 
-                    <button type="button" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 mb-5 mt-2 text-sm py-2 px-4 text-white rounded-full focus:outline-none"
+                    <button type="button" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none"
                             x-on:click="$refs.photo.click()"
                     >
                         Selecciona la imágen del producto
@@ -562,6 +606,19 @@
             </x-jet-danger-button>
         </x-slot>
     </x-jet-confirmation-modal>
+
+    <script>
+
+        document.getElementById('selectType').addEventListener('change', ()=>{
+            if(document.getElementById('selectType').value == 'alimento'){
+                @this.set('stock', -1);
+            }else{
+                document.getElementById('selectType').value = "Unidades";
+                @this.set('stock', null);
+            }
+        })
+
+    </script>
 
     <script>
         let logComponentsData = function () {

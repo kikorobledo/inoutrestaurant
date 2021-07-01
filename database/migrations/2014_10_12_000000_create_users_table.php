@@ -21,13 +21,13 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->enum('status',['activo','inactivo'])->default('activo');
             $table->integer('role');
-            $table->foreignId('created_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
-            $table->foreignId('updated_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
-            $table->foreignId('establishment_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained()->references('id')->on('users');
+            $table->foreignId('updated_by')->nullable()->constrained()->references('id')->on('users');
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->text('profile_photo_path')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

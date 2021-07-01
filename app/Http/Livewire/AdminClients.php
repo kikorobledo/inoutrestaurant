@@ -54,7 +54,7 @@ class AdminClients extends Component
     public function render()
     {
         if(auth()->user()->role == 1){
-            $clients = Client::where('name', 'LIKE', '%' . $this->search . '%')
+            $clients = Client::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('telephone', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
@@ -70,7 +70,7 @@ class AdminClients extends Component
                             ->paginate(10);
         }
         else{
-            $clients = Client::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $clients = Client::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')

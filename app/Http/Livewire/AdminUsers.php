@@ -58,24 +58,39 @@ class AdminUsers extends Component
     public function render()
     {
         if(auth()->user()->role == 1){
-            $users = User::where('name', 'LIKE', '%' . $this->search . '%')
+            $users = User::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                            ->orWhere(function($q){
+                                return $q->whereHas('roles', function($q){
+                                    return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                });
+                            })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $users = User::where('establishment_id', '=', auth()->user()->establishment->id)
+            $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
-                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere(function($q){
+                                                return $q->whereHas('roles', function($q){
+                                                    return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                                });
+                                            });
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
         }
         else{
-            $users = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
-                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                                            ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere(function($q){
+                                                return $q->whereHas('roles', function($q){
+                                                    return $q->where('name', 'LIKE', '%' . $this->search . '%');
+                                                });
+                                            });
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);

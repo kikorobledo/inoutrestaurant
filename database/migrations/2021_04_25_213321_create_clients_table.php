@@ -19,8 +19,8 @@ class CreateClientsTable extends Migration
             $table->string('email')->unique();
             $table->string('telephone');
             $table->foreignId('establishment_id')->constrained()->onDelete('cascade');
-            $table->foreignId('created_by')->constrained()->onDelete('cascade')->references('id')->on('users');
-            $table->foreignId('updated_by')->nullable()->constrained()->onDelete('cascade')->references('id')->on('users');
+            $table->foreignId('created_by')->constrained()->references('id')->on('users');
+            $table->foreignId('updated_by')->nullable()->constrained()->references('id')->on('users');
             $table->timestamps();
         });
     }

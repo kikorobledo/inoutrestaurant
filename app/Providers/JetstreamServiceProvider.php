@@ -15,7 +15,7 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
     }
 
     /**
@@ -46,4 +46,5 @@ class JetstreamServiceProvider extends ServiceProvider
             'delete',
         ]);
     }
+
 }

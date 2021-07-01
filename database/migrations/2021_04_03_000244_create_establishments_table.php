@@ -19,6 +19,8 @@ class CreateEstablishmentsTable extends Migration
             $table->string('email')->nullable()->unique();
             $table->string('address')->nullable();
             $table->string('telephone')->nullable();
+            $table->string('logo')->nullable();
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

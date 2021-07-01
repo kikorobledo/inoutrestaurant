@@ -50,11 +50,11 @@ class AdminCategories extends Component
     {
 
         if(auth()->user()->role == 1){
-            $categories = Category::where('name', 'LIKE', '%' . $this->search . '%')
+            $categories = Category::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $categories = Category::where('establishment_id', '=', auth()->user()->establishment->id)
+            $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%');
                             })
@@ -62,7 +62,7 @@ class AdminCategories extends Component
                             ->paginate(10);
 
         }else{
-            $categories = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%');
                             })

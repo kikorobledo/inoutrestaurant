@@ -19,6 +19,9 @@ class IsEstablishmentUpdatedMiddleware
 
         if(auth()->user()->establishment == null){
             $user = auth()->user()->createdBy;
+            if($user->establishment == null){
+                $user = auth()->user()->createdBy->createdBy;
+            }
         }else{
             $user = auth()->user();
         }
