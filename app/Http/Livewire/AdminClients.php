@@ -21,6 +21,7 @@ class AdminClients extends Component
     public $direction = 'desc';
 
     public $client_id;
+    public $client_number;
     public $name;
     public $email;
     public $telephone;
@@ -59,8 +60,9 @@ class AdminClients extends Component
                             ->orWhere('telephone', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->client_number = Client::where('created_by', 1)->latest()->first();
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $clients = Client::where('establishment_id', '=', auth()->user()->establishment->id)
+            $clients = Client::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
@@ -68,6 +70,7 @@ class AdminClients extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
         else{
             $clients = Client::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
@@ -78,6 +81,7 @@ class AdminClients extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-clients', compact('clients'));
@@ -131,6 +135,7 @@ class AdminClients extends Component
         $this->validate();
 
         $client = Client::create([
+            'client_number' => $this->client_number == null ? 1 : $this->client_number->client_number + 1,
             'name' => $this->name,
             'email' => $this->email,
             'telephone' => $this->telephone,

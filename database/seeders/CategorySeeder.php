@@ -16,6 +16,7 @@ class CategorySeeder extends Seeder
     public function run()
     {
         DB::table('categories')->insert([
+            'category_number' => 1,
             'name' => 'Ceramicas',
             'created_by' => 1,
             'created_at' => Carbon::now(),
@@ -23,6 +24,7 @@ class CategorySeeder extends Seeder
         ]);
 
         DB::table('categories')->insert([
+            'category_number' => 2,
             'name' => 'Aluminios',
             'created_by' => 1,
             'created_at' => Carbon::now(),
@@ -30,6 +32,7 @@ class CategorySeeder extends Seeder
         ]);
 
         DB::table('categories')->insert([
+            'category_number' => 3,
             'name' => 'Textiles',
             'created_by' => 1,
             'created_at' => Carbon::now(),
@@ -37,6 +40,7 @@ class CategorySeeder extends Seeder
         ]);
 
         DB::table('categories')->insert([
+            'category_number' => 4,
             'name' => 'Impresiones',
             'created_by' => 1,
             'created_at' => Carbon::now(),
@@ -44,6 +48,7 @@ class CategorySeeder extends Seeder
         ]);
 
         DB::table('categories')->insert([
+            'category_number' => 5,
             'name' => 'Servicios',
             'created_by' => 1,
             'created_at' => Carbon::now(),

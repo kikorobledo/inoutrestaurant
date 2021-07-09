@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Table;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ class Sale extends Model
     use HasFactory;
 
     protected $fillable = [
+        'sale_number',
         'table_id',
         'table_name',
         'client_id',
@@ -48,5 +50,13 @@ class Sale extends Model
 
     public function saleDetails(){
         return $this->hasMany(SaleDetail::class)->with('extras');
+    }
+
+    public function getCreatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('d-m-Y H:i:s');
+    }
+
+    public function getUpdatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['updated_at'])->format('d-m-Y H:i:s');
     }
 }

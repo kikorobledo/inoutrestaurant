@@ -19,7 +19,7 @@ class CreateSaleDetailsTable extends Migration
             $table->string('product_name');
             $table->decimal('product_price', 15,2);
             $table->unsignedInteger('quantity');
-            $table->text('description')->nullable();
+            $table->text('indications')->nullable();
             $table->enum('status',['not_confirmed','confirmed'])->default('not_confirmed');
             $table->timestamps();
         });

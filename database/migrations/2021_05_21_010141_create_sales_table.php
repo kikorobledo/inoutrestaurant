@@ -15,6 +15,7 @@ class CreateSalesTable extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('sale_number');
             $table->foreignId('table_id')->nullable()->constrained()->onDelete('set null');
             $table->string('table_name')->nullable();
             $table->foreignId('client_id')->nullable()->constrained()->onDelete('set null');

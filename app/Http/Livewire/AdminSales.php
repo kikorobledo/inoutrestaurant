@@ -50,6 +50,7 @@ class AdminSales extends Component
         if(auth()->user()->role == 1){
             $sales = Sale::with('createdBy','updatedBy','table','client')->where('table_id', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('id', 'LIKE', '%' . $this->search . '%')
+                            ->orWhere('sale_number', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('total_price', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('total_recived', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('change', 'LIKE', '%' . $this->search . '%')
@@ -63,6 +64,7 @@ class AdminSales extends Component
                             ->where(function($q){
                                 return $q->where('table_id', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('id', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('sale_number', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('total_price', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('total_recived', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('change', 'LIKE', '%' . $this->search . '%')
@@ -77,6 +79,7 @@ class AdminSales extends Component
                             ->where(function($q){
                                 return $q->where('table_id', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('id', 'LIKE', '%' . $this->search . '%')
+                                            ->orWhere('sale_number', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('total_price', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('total_recived', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('change', 'LIKE', '%' . $this->search . '%')

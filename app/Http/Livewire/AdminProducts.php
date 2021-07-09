@@ -26,6 +26,7 @@ class AdminProducts extends Component
     public $direction = 'desc';
 
     public $product;
+    public $product_number;
     public $product_id;
     public $name;
     public $description;
@@ -91,6 +92,8 @@ class AdminProducts extends Component
 
             $extras = Extra::orderBy('name')->get();
 
+            $this->product_number = Product::where('created_by', 1)->latest()->first();
+
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $products = Product::with('createdBy','updatedBy','category')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
@@ -112,6 +115,8 @@ class AdminProducts extends Component
             $categories = Category::where('establishment_id', '=', auth()->user()->establishment->id)->get();
 
             $extras = Extra::where('establishment_id', '=', auth()->user()->establishment->id)->orderBy('name')->get();
+
+            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
         else{
             $products = Product::with('createdBy','updatedBy','category')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
@@ -134,6 +139,8 @@ class AdminProducts extends Component
             $categories = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->get();
 
             $extras = Extra::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->orderBy('name')->get();
+
+            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-products', compact('products', 'categories', 'extras'));
@@ -177,9 +184,6 @@ class AdminProducts extends Component
         $this->create = false;
         $this->edit = true;
         $this->modal = true;
-
-
-
     }
 
     public function openModalDelete($product){
@@ -201,6 +205,7 @@ class AdminProducts extends Component
         $this->validate();
 
         $product = Product::create([
+            'product_number' => $this->product_number == null ? 1 : $this->product_number->product_number + 1,
             'name' => $this->name,
             'description' => $this->description,
             'stock' => $this->stock,

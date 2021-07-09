@@ -161,7 +161,7 @@
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">#</span>
-                            {{ $loop->iteration }}
+                            {{ $client->client_number }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -194,7 +194,7 @@
                             @if($client->created_by != null)
                                 <span class="font-semibold">Registrado por: {{$client->createdBy->name}}</span> <br>
                             @endif
-                            {{ $client->created_at->diffForHumans() }}
+                            {{ $client->created_at }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -203,7 +203,7 @@
                             @if($client->updated_by != null)
                                 <span class="font-semibold">Actualizado por: {{$client->updatedBy->name}}</span> <br>
                             @endif
-                            {{ $client->updated_at->diffForHumans() }}
+                            {{ $client->updated_at }}
 
                         </td>
                         @if(auth()->user()->roles[0]->name != 'Empleado')

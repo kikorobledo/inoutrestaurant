@@ -24,7 +24,7 @@
     }
 
     .receipt-data p,{
-        margin-bottom: 0;
+        margin-bottom: 10;
         line-height: .2;
     }
 
@@ -88,6 +88,11 @@
         padding-right: 1.5% ;
     }
 
+    .footer p{
+        margin:0;
+        text-align: center;
+    }
+
 </style>
 
 <body>
@@ -105,7 +110,7 @@
         <div class="receipt-data">
             <p>Fecha: {{Carbon\Carbon::now()->format('d-m-Y')}}</p>
             <p>Hora: {{Carbon\Carbon::now()->format('H:i:s')}}</p>
-            <p>Venta: {{ $sale->id }}</p>
+            <p>Venta: {{ $sale->sale_number }}</p>
         </div>
 
         <div class="receipt-body">
@@ -195,6 +200,11 @@
             <p>Mesa: {{$sale->table_name}}</p>
             <p>Cliente: {{$sale->client_name}}</p>
             <p>Atendido por: {{ auth()->user()->name }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Ticket elaborado con</p>
+            <p>www.inout.com</p>
         </div>
 
     </div>

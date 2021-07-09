@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminProfile;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ExtraController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ProductController;
@@ -24,6 +25,8 @@ Route::group(['middleware' => ['auth','verified', 'is.active', 'is.establishment
 
     Route::resource('sales', SaleController::class)->only(['index','create','edit'])->names('admin.sales');
     Route::get('sales/receipt/{sale}', [SaleController::class, 'receipt'])->name('admin.sales.receipt');
+
+    Route::resource('extras', ExtraController::class)->only(['index','create','edit'])->names('admin.extras');
 
 
     Route::group(['middleware' => ['is.admin']], function(){

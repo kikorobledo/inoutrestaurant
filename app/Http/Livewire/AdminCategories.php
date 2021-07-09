@@ -20,6 +20,7 @@ class AdminCategories extends Component
     public $direction = 'desc';
 
     public $category_id;
+    public $category_number;
     public $name;
 
     public function updatingSearch(){
@@ -53,6 +54,7 @@ class AdminCategories extends Component
             $categories = Category::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
+            $this->category_number = Category::where('created_by', 1)->latest()->first();
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
@@ -60,7 +62,7 @@ class AdminCategories extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-
+            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }else{
             $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
@@ -68,6 +70,7 @@ class AdminCategories extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-categories', compact('categories'));
@@ -111,6 +114,7 @@ class AdminCategories extends Component
         $this->validate();
 
         $category = Category::create([
+            'category_number' => $this->category_number == null ? 1 : $this->category_number->category_number + 1,
             'name' => $this->name,
             'created_by' => auth()->user()->id,
             'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id

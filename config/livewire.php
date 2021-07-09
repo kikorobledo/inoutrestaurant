@@ -54,7 +54,7 @@ return [
     |
     */
 
-    /* 'asset_url' => 'http://192.168.1.5/inout/public', */
+   /*  'asset_url' => 'http://192.168.1.5/inout/public', */
     'asset_url' => null,
 
     /*

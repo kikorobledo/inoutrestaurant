@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Extra;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'product_number',
         'name',
         'description',
         'image_url',
@@ -42,5 +44,13 @@ class Product extends Model
 
     public function extras(){
         return $this->morphToMany(Extra::class, 'extraable');
+    }
+
+    public function getCreatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('d-m-Y H:i:s');
+    }
+
+    public function getUpdatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['updated_at'])->format('d-m-Y H:i:s');
     }
 }

@@ -158,7 +158,7 @@
                                         x-text="product.name"
                                         class="hover:bg-gray-100 py-1 px-4 rounded-xl"
                                         x-on:click.prevent.stop="selected(product.name)"
-                                        x-on:click="$wire.addProduct(product.id)">
+                                        x-on:click="$wire.openModalExtras(product.id)">
                                     </span>
 
                                 </template>
@@ -362,35 +362,20 @@
                                 <td class=" w-full p-3 text-gray-800 text-center hidden xl:block">
                                     ${{ $product->sale_price }}
                                 </td>
-                                @if(auth()->user()->roles[0]->name != 'Empleado')
-                                    <td class=" w-full lg:w-auto p-3 text-gray-800 text-center ">
+                                <td class=" w-full lg:w-auto p-3 text-gray-800 text-center ">
 
-                                        <div class="flex justify-center lg:justify-start">
+                                    <div class="flex justify-center lg:justify-start">
 
-                                            @if($product->stock != -1)
+                                        <button wire:click="openModalExtras({{$product->id}})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p>Agregar</p>
+                                        </button>
 
-                                                <button wire:click="addProduct({{$product->id}})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <p>Agregar</p>
-                                                </button>
+                                    </div>
 
-                                            @else
-
-                                                <button wire:click="openModalExtras({{$product->id}})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <p>Agregar</p>
-                                                </button>
-
-                                            @endif
-
-                                        </div>
-
-                                    </td>
-                                @endif
+                                </td>
                             </tr>
                         @empty
 
@@ -432,9 +417,16 @@
                 <div class="flex flex-wrap overflow-y-auto max-h-60">
                     @foreach($product_->extras as $extra)
 
-                        <label class="border border-gray-500 px-2 rounded-full py-1 mr-2 mb-1 text-sm cursor-pointer text-xs">
+{{--                    <label class="border border-gray-500 px-2 rounded-full py-1 mr-2 mb-1 cursor-pointer text-xs">
                             <input class="bg-white rounded" type="checkbox" wire:model="selected_extras" value="{{ $extra->id }}">
                             {{ $extra->name }} / ${{$extra->price}}
+                        </label> --}}
+
+                        <label class="mr-2 text-sm">
+
+                            <input wire:model.defer="selected_extras"  type="checkbox" value="{{ $extra->id }}" class=" border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1">
+                            {{ $extra->name }} / ${{$extra->price}}
+
                         </label>
 
                     @endforeach

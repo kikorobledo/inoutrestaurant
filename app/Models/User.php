@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Establishment;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -30,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
+        'user_number',
         'name',
         'email',
         'password',
@@ -98,5 +100,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function updatedBy(){
         return $this->belongsTo(User::class, 'updated_by')->withTrashed();
+    }
+
+    public function getCreatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['created_at'])->format('d-m-Y H:i:s');
+    }
+
+    public function getUpdatedAtAttribute(){
+        return Carbon::createFromFormat('Y-m-d H:i:s', $this->attributes['updated_at'])->format('d-m-Y H:i:s');
     }
 }

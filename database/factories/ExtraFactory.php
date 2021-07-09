@@ -24,6 +24,7 @@ class ExtraFactory extends Factory
     public function definition()
     {
         return [
+            'extra_number' => $this->faker->unique()->numberBetween(1,300),
             'name' => $this->faker->name,
             'price' => $this->faker->randomFloat(2, 10.1, 9999.9),
             'establishment_id' => Establishment::all()->random()->id,

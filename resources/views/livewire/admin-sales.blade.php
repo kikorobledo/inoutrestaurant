@@ -33,10 +33,8 @@
 
             <input type="text" wire:model="search" placeholder="Buscar" class="bg-white rounded-full text-sm">
 
-            @if(auth()->user()->roles[0]->name != 'Empleado')
-                <a href="{{ route('admin.sales.create') }}"  class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar Nueva Venta</a>
-                <a href="{{ route('admin.sales.create') }}" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none md:hidden">+</a>
-            @endif
+            <a href="{{ route('admin.sales.create') }}"  class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none hidden md:block">Agregar Nueva Venta</a>
+            <a href="{{ route('admin.sales.create') }}" class="bg-gray-500 hover:shadow-lg hover:bg-gray-700 float-right mb-5 text-sm py-2 px-4 text-white rounded-full focus:outline-none md:hidden">+</a>
 
         </div>
 
@@ -224,7 +222,7 @@
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">#</span>
-                            {{ $loop->iteration }}
+                            {{ $sale->sale_number }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -287,7 +285,7 @@
                             @if($sale->created_by != null)
                                 <span class="font-semibold">Registrado por: {{$sale->createdBy->name}}</span> <br>
                             @endif
-                            {{ $sale->created_at->diffForHumans() }}
+                            {{ $sale->created_at }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -296,50 +294,49 @@
                             @if($sale->updated_by != null)
                                 <span class="font-semibold">Actualizado por: {{$sale->updatedBy->name}}</span> <br>
                             @endif
-                            {{ $sale->updated_at->diffForHumans() }}
+                            {{ $sale->updated_at }}
 
                         </td>
-                        @if(auth()->user()->roles[0]->name != 'Empleado')
-                            <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
+                        <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">
 
-                                <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
+                            <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Acciones</span>
 
-                                <div class="flex justify-center ">
+                            <div class="flex justify-center ">
 
-                                    @if($sale->status == 'unpaid')
+                                @if($sale->status == 'unpaid')
 
-                                        <a href="{{ route('admin.sales.edit', $sale)}}" class="bg-blue-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    <a href="{{ route('admin.sales.edit', $sale)}}" class="bg-blue-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-blue-700 flex focus:outline-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        <p>Editar</p>
+                                    </a>
+
+                                @else
+
+                                    <button wire:click="openModalShow({{ $sale->id }})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
-                                            <p>Editar</p>
-                                        </a>
+                                        <p>Ver</p>
+                                    </button>
 
-                                    @else
+                                @endif
 
-                                        <button wire:click="openModalShow({{ $sale->id }})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                              </svg>
-                                            <p>Ver</p>
-                                        </button>
+                                @if(auth()->user()->roles[0]->name == 'Administrador Tienda' || auth()->user()->roles[0]->name == 'Administrador')
+                                    <button wire:click="openModalDelete({{$sale}})" class="bg-red-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <p>Eliminar</p>
+                                    </button>
+                                @endif
 
-                                    @endif
+                            </div>
 
-                                    @if(auth()->user()->roles[0]->name != 'Empleado Especial')
-                                        <button wire:click="openModalDelete({{$sale}})" class="bg-red-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full hover:bg-red-700 flex focus:outline-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 mr-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                            <p>Eliminar</p>
-                                        </button>
-                                    @endif
+                        </td>
 
-                                </div>
-
-                            </td>
-                        @endif
                     </tr>
 
                 @endforeach
@@ -369,7 +366,7 @@
     <x-jet-dialog-modal wire:model="modal" maxWidth="md">
 
         <x-slot name="title">
-            Venta
+            Venta # @if($sale_active){{ $sale_active->sale_number }}@endif
         </x-slot>
 
         <x-slot name="content">

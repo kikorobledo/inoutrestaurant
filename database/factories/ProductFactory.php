@@ -25,9 +25,10 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
+            'product_number' => $this->faker->unique()->numberBetween(1,200),
             'name' => $this->faker->name,
             'description' => $this->faker->text(50),
-            'stock' => $this->faker->numberBetween(-1,200),
+            'stock' => $this->faker->numberBetween(-2,200),
             'purchase_price' => $this->faker->randomFloat(2, 10.1, 9999.9),
             'sale_price' => $this->faker->randomFloat(2, 10.1, 9999.9),
             'category_id' => Category::all()->random()->id,

@@ -226,7 +226,8 @@
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">#</span>
-                            {{ $loop->iteration }}
+
+                            {{ $product->product_number }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -293,7 +294,7 @@
                             @if($product->created_by != null)
                                 <span class="font-semibold">Registrado por: {{$product->createdBy->name}}</span> <br>
                             @endif
-                            {{ $product->created_at->diffForHumans() }}
+                            {{ $product->created_at }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -302,7 +303,7 @@
                             @if($product->updated_by != null)
                                 <span class="font-semibold">Actualizado por: {{$product->updatedBy->name}}</span> <br>
                             @endif
-                            {{ $product->updated_at->diffForHumans() }}
+                            {{ $product->updated_at }}
 
                         </td>
                         @if(auth()->user()->roles[0]->name != 'Empleado')
@@ -476,7 +477,7 @@
                         <Label>Descripción</Label>
                     </div>
                     <div>
-                        <textarea rows="2" class="bg-white rounded text-sm w-full" wire:model="description"></textarea>
+                        <textarea rows="2" class="bg-white rounded text-sm w-full" wire:model.defer="description"></textarea>
                     </div>
                     <div>
                         @error('description') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
@@ -496,7 +497,7 @@
                         @foreach($extras as $extra)
 
                             <label class="border border-gray-500 px-2 rounded-full py-1 mr-2 mb-1 text-sm cursor-pointer">
-                                <input class="bg-white rounded" type="checkbox" wire:model="selected_extras" value="{{ $extra->id }}">
+                                <input class="bg-white rounded" type="checkbox" wire:model.defer="selected_extras" value="{{ $extra->id }}">
                                 {{ $extra->name }}
                             </label>
 

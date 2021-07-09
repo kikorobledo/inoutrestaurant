@@ -164,7 +164,7 @@
                             <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                                 <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">#</span>
-                                {{ $loop->iteration }}
+                                {{ $table->id }}
 
                             </td>
                             <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -196,7 +196,7 @@
                                 @if($table->created_by != null)
                                     <span class="font-semibold">Registrado por: {{$table->createdBy->name}}</span> <br>
                                 @endif
-                                {{ $table->created_at->diffForHumans() }}
+                                {{ $table->created_at }}
 
                             </td>
                             <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -205,7 +205,7 @@
                                 @if($table->updated_by != null)
                                     <span class="font-semibold">Actualizado por: {{$table->updatedBy->name}}</span> <br>
                                 @endif
-                                {{ $table->updated_at->diffForHumans() }}
+                                {{ $table->updated_at }}
 
                             </td>
                             <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b lg:table-cell relative lg:static">

@@ -29,6 +29,7 @@ class AdminSalesCreateEdit extends Component
     public $table_id;
     public $table_name;
     public $sale;
+    public $sale_number;
     public $saleDetail;
     public $saleDetails;
     public $total_price;
@@ -95,6 +96,8 @@ class AdminSalesCreateEdit extends Component
 
             $tables = Table::all();
 
+            $this->sale_number = Sale::latest()->first();
+
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
 
             $clients = Client::where('establishment_id', '=', auth()->user()->establishment->id)->where('name', 'LIKE', '%' . $this->search_client . '%')->orderBy('name')->get();
@@ -112,6 +115,8 @@ class AdminSalesCreateEdit extends Component
                                 ->get();
 
             $tables = Table::where('establishment_id', '=', auth()->user()->establishment->id)->orderBy('name')->get();
+
+            $this->sale_number = Sale::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
         else{
 
@@ -130,6 +135,8 @@ class AdminSalesCreateEdit extends Component
                                 ->get();
 
             $tables = Table::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->orderBy('name')->get();
+
+            $this->sale_number = Sale::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         $sale0 = [
@@ -155,11 +162,20 @@ class AdminSalesCreateEdit extends Component
 
         $this->product_ = $product;
 
-        if(count($this->product_->extras) > 0){
-            $this->modalExtras = true;
+        if($this->product_->stock == -1){
+
+            if(count($this->product_->extras) > 0){
+                $this->modalExtras = true;
+            }else{
+                $this->selected_extras = [];
+                $this->addProduct($this->product_);
+            }
+
         }else{
+
             $this->selected_extras = [];
             $this->addProduct($this->product_);
+
         }
     }
 
@@ -193,6 +209,7 @@ class AdminSalesCreateEdit extends Component
         if($this->sale === null){
 
             $this->sale = Sale::create([
+                'sale_number' => $this->sale_number == null ? 1 : $this->sale_number->sale_number + 1,
                 'table_id' => ($this->table_id === 0) ? null : $this->table_id,
                 'table_name' => $this->table_name,
                 'client_id' => ($this->client_id === 0) ? null : $this->client_id,

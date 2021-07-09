@@ -23,6 +23,7 @@ class AdminUsers extends Component
     public $direction = 'desc';
 
     public $user_id;
+    public $user_number;
     public $name;
     public $email;
     public $status;
@@ -67,6 +68,7 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->user_number = User::where('created_by', 1)->latest()->first();
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
@@ -80,6 +82,7 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
         else{
             $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
@@ -94,6 +97,7 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
+            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-users', compact('users'));
@@ -140,6 +144,7 @@ class AdminUsers extends Component
         $this->validate();
 
         $user = User::create([
+            'user_number' => $this->user_number == null ? 1 : $this->user_number->user_number + 1,
             'name' => $this->name,
             'email' => $this->email,
             'status' => $this->status,

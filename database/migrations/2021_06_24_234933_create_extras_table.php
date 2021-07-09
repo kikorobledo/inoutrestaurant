@@ -15,6 +15,7 @@ class CreateExtrasTable extends Migration
     {
         Schema::create('extras', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('extra_number');
             $table->string('name');
             $table->decimal('price', 15, 2);
             $table->foreignId('establishment_id')->constrained()->onDelete('cascade');

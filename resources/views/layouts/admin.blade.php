@@ -29,7 +29,7 @@
             </div>
 
             {{-- Nav --}}
-            <nav class="p-4 text-gray-500">
+            <nav class="p-4 text-gray-500" x-data="{open:true}">
 
                 <p class="uppercase text-md text-gray-600 mb-4 tracking-wider">Administración</p>
 
@@ -64,14 +64,43 @@
                     Clientes
                 </a>
 
-                <a href="{{ route('admin.products.index') }}" class="mb-3 capitalize font-medium text-md hover:text-teal-600 transition ease-in-out duration-500 flex hover  hover:bg-gray-100 p-2 px-4 rounded-xl">
+                <div class="flex items-center mb-3 w-full justify-between hover:text-teal-600 transition ease-in-out duration-500 hover:bg-gray-100 rounded-xl">
+                    <a href="{{ route('admin.products.index') }}" class=" capitalize font-medium text-md  flex hover w-full  p-2 px-4 ">
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-4 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-4 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+
+                        Productos
+
+                    </a>
+                    <svg @click="open = false" x-show="open" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 text-gray-300 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+
+                    <svg @click="open = true" x-show="!open" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 text-gray-300 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                       </svg>
 
-                    Productos
-                </a>
+                </div>
+
+                <div
+                x-transition:enter="transition duration-2000 transform ease-out"
+                x-transition:leave="transition duration-200 transform ease-in"
+                x-transition:leave-end="opacity-0 scale-90"
+                x-transition:enter-start="scale-75"
+                class="flex items-center mb-3 w-full justify-between hover:text-teal-600 transition ease-in-out duration-500 hover:bg-gray-100 rounded-xl text-sm"
+                x-show="!open">
+                    <a href="{{ route('admin.extras.index') }}" class=" capitalize font-medium text-md  flex hover w-full   p-2 px-4 ml-5">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+
+                        Extras
+
+                    </a>
+                </div>
 
                 <a href="{{ route('admin.tables.index') }}" class="mb-3 capitalize font-medium text-md hover:text-teal-600 transition ease-in-out duration-500 flex hover  hover:bg-gray-100 p-2 px-4 rounded-xl">
 
