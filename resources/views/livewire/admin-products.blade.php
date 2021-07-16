@@ -12,22 +12,7 @@
 
     <div class="mb-5">
 
-        <div
-            class="flex justify-between mb-5"
-            x-data="{show:false}"
-            x-init="@this.on('showMessage', () => { show=true, setTimeout( () => {show=false;}, 4000 ) })"
-        >
-
-            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Productos</h1>
-
-            <span
-                class="bg-green-500 py-2 px-4 text-white text-md rounded-full float-right"
-                x-show.transition.opacity.out.duration.1500ms="show"
-            >
-                {{ $message }}
-            </span>
-
-        </div>
+        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-5">Productos</h1>
 
         <div>
 
@@ -273,13 +258,13 @@
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Precio de compra</span>
-                            $ {{ $product->purchase_price }}
+                            ${{ $product->purchase_price }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
 
                             <span class="lg:hidden absolute top-0 left-0 bg-blue-300 px-2 py-1 text-xs text-white font-bold uppercase rounded-br-xl">Precio de venta</span>
-                            $ {{ $product->sale_price }}
+                            ${{ $product->sale_price }}
 
                         </td>
                         <td class="px-6 py-3 w-full lg:w-auto p-3 text-gray-800 text-center lg:text-left lg:border-0 border border-b block lg:table-cell relative lg:static">
@@ -374,7 +359,7 @@
                         <Label>Nombre</Label>
                     </div>
                     <div>
-                        <input type="text" class="bg-white rounded text-sm w-full" wire:model="name">
+                        <input type="text" class="bg-white rounded text-sm w-full" wire:model.defer="name">
                     </div>
                     <div>
                         @error('name') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
@@ -387,7 +372,7 @@
                     </div>
                     <div>
 
-                        <select wire:model="category_id" class="bg-white rounded text-sm w-full">
+                        <select wire:model.defer="category_id" class="bg-white rounded text-sm w-full">
 
                             <option value="">Seleccione una categoría</option>
 
@@ -441,7 +426,7 @@
                                 $
                                 </span>
                             </div>
-                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model="purchase_price" placeholder="0.00">
+                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model.defer="purchase_price" placeholder="0.00">
                         </div>
                     </div>
                     <div>
@@ -460,7 +445,7 @@
                                 $
                                 </span>
                             </div>
-                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model="sale_price" placeholder="0.00">
+                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:model.defer="sale_price" placeholder="0.00">
                         </div>
                     </div>
                     <div>
@@ -617,6 +602,25 @@
                 document.getElementById('selectType').value = "Unidades";
                 @this.set('stock', null);
             }
+        })
+
+        window.addEventListener('showMessage', event => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: event.detail[0],
+                title: event.detail[1]
+            })
         })
 
     </script>

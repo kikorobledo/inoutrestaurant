@@ -13,7 +13,6 @@ class AdminSales extends Component
 
     public $modal = false;
     public $modalDelete = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
@@ -112,11 +111,21 @@ class AdminSales extends Component
 
     public function delete(){
 
-        $this->sale_active->delete();
+        try {
 
-        $this->message = "La venta ha sido eliminada con exito.";
-        $this->emit('showMessage');
+            $this->sale_active->delete();
 
-        $this->closeModal();
+            if($this->sale_active->table_id != null)
+                $this->sale_active->table->update(['status' => 'available']);
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El cliente ha sido creado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 }

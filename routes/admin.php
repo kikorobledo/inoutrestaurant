@@ -22,6 +22,7 @@ Route::group(['middleware' => ['auth','verified', 'is.active', 'is.establishment
     Route::resource('products', ProductController::class)->only(['index'])->names('admin.products');
 
     Route::resource('tables', TableController::class)->only(['index','show'])->names('admin.tables');
+    Route::get('sales/create/{table}', [TableController::class, 'create'])->name('admin.tables.create');
 
     Route::resource('sales', SaleController::class)->only(['index','create','edit'])->names('admin.sales');
     Route::get('sales/receipt/{sale}', [SaleController::class, 'receipt'])->name('admin.sales.receipt');

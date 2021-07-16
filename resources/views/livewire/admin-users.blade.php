@@ -2,7 +2,7 @@
 
     <div class="mb-5">
 
-        <div
+        {{-- <div
             class="flex justify-between mb-5"
             x-data="{show:false}"
             x-init="@this.on('showMessage', () => { show=true, setTimeout( () => {show=false;}, 4000 ) })"
@@ -17,7 +17,9 @@
                 {{ $message }}
             </span>
 
-        </div>
+        </div> --}}
+
+        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-5">Usuarios</h1>
 
         <div>
 
@@ -299,7 +301,7 @@
                         <Label>Nombre</Label>
                     </div>
                     <div>
-                        <input type="text" class="bg-white rounded text-sm w-full" wire:model="name">
+                        <input type="text" class="bg-white rounded text-sm w-full" wire:model.defer="name">
                     </div>
                     <div>
                         @error('name') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
@@ -311,7 +313,7 @@
                         <Label>Email</Label>
                     </div>
                     <div>
-                        <input type="email" class="bg-white rounded text-sm w-full" wire:model="email">
+                        <input type="email" class="bg-white rounded text-sm w-full" wire:model.defer="email">
                     </div>
                     <div>
                         @error('email') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
@@ -327,7 +329,7 @@
                         <Label>Status</Label>
                     </div>
                     <div>
-                        <select class="bg-white rounded text-sm w-full" wire:model="status">
+                        <select class="bg-white rounded text-sm w-full" wire:model.defer="status">
                             <option value="">Seleccione una opción</option>
                             <option value="activo">Activo</option>
                             <option value="inactivo">Inactivo</option>
@@ -343,7 +345,7 @@
                         <Label>Role</Label>
                     </div>
                     <div>
-                        <select class="bg-white rounded text-sm w-full" wire:model="role">
+                        <select class="bg-white rounded text-sm w-full" wire:model.defer="role">
                             <option value="">Seleccione una opción</option>
                             <option value="2">Administrador Tienda</option>
                             <option value="3">Empleado</option>
@@ -415,6 +417,29 @@
             </x-jet-danger-button>
         </x-slot>
     </x-jet-confirmation-modal>
+
+    <script>
+
+        window.addEventListener('showMessage', event => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: event.detail[0],
+                title: event.detail[1]
+            })
+        })
+
+    </script>
 
     <script>
         let logComponentsData = function () {

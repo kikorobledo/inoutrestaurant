@@ -33,7 +33,7 @@ class IsEstablishmentUpdatedMiddleware
             $user->establishment->telephone == null
             )
         {
-            return redirect()->route('admin.profile')->with('message', 'Actualiza los datos de tu establecimiento para poder comenzar a user el sistema InOut.');;
+            return redirect()->route('admin.profile')->with('message', 'Actualiza los datos de tu establecimiento para poder comenzar a usar el sistema InOut.');;
         }
 
         return $next($request);

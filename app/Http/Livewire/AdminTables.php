@@ -17,8 +17,8 @@ class AdminTables extends Component
     public $edit = false;
     public $message;
     public $search;
-    public $sort = 'id';
-    public $direction = 'desc';
+    public $sort = 'name';
+    public $direction = 'asc';
 
 
     public $table_id;
@@ -54,7 +54,7 @@ class AdminTables extends Component
 
         if(auth()->user()->role == 1){
 
-            $tables = Table::with('createdBy','updatedBy','establishmentBelonging')->where('name', 'LIKE', '%' . $this->search . '%')
+            $tables = Table::with('createdBy','updatedBy','establishmentBelonging', 'activeSale')->where('name', 'LIKE', '%' . $this->search . '%')
                         ->orWhere(function($q){
                             return $q->whereHas('establishmentBelonging', function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%');
@@ -65,7 +65,7 @@ class AdminTables extends Component
 
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
 
-            $tables = Table::with('createdBy','updatedBy','establishmentBelonging')->where('establishment_id', '=', auth()->user()->establishment->id)
+            $tables = Table::with('createdBy','updatedBy','establishmentBelonging', 'activeSale')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere(function($q){
@@ -74,11 +74,12 @@ class AdminTables extends Component
                                                 });
                                             });
                             })
+                            ->orderBy($this->sort, $this->direction)
                             ->get();
         }
         else{
 
-            $tables = Table::with('createdBy','updatedBy','establishmentBelonging')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $tables = Table::with('createdBy','updatedBy','establishmentBelonging', 'activeSale')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere(function($q){
@@ -87,6 +88,7 @@ class AdminTables extends Component
                                                 });
                                             });
                             })
+                            ->orderBy($this->sort, $this->direction)
                             ->get();
         }
 
@@ -113,41 +115,95 @@ class AdminTables extends Component
         $this->modal = true;
         $this->edit = true;
 
-        $this->table = Table::findorFail($table['id']);
-
         $this->table_id = $table['id'];
-        $this->name = $this->table->name;
-        $this->status = $this->table->status;
+        $this->name = $table['name'];
+        $this->status = $table['status'];
 
     }
 
-    public function openModalDelete($product){
+    public function openModalDelete($table){
 
         $this->modalDelete = true;
-        $this->product_id = $product['id'];
+        $this->table_id = $table['id'];
     }
 
     public function closeModal(){
         $this->reset('status','name', 'table_id');
         $this->modal = false;
         $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
     }
 
     public function create(){
 
         $this->validate();
 
-        $product = Table::create([
-            'name' => $this->name,
-            'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
+        try {
 
-        $this->message = "La mesa ha sido creado con exito.";
-        $this->emit('showMessage');
+            $table = Table::create([
+                'name' => $this->name,
+                'created_by' => auth()->user()->id,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "La mesa ha sido creada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
+    }
+
+    public function update(){
+
+        $table = Table::findorFail($this->table_id);
+
+        $this->validate();
+
+        try {
+
+            $table->update([
+                'name' => $this->name,
+                'updated_by' => auth()->user()->id,
+            ]);
+
+            $this->dispatchBrowserEvent('showMessage',['success', "La mesa ha sido actualizada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
+    }
+
+    public function delete(){
+
+        $table = Table::findorFail($this->table_id);
+
+        if($table->status == 'unavailable'){
+            $this->dispatchBrowserEvent('showMessage',['error', "La mesa no puede ser eliminada teniendo una venta sin concluir."]);
+
+            $this->closeModal();
+
+            return;
+        }
+
+        try {
+
+            $table->delete();
+
+            $this->dispatchBrowserEvent('showMessage',['success', "La mesa ha sido eliminada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 }

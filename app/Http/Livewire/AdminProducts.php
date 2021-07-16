@@ -20,12 +20,10 @@ class AdminProducts extends Component
     public $modalDelete = false;
     public $create = false;
     public $edit = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
 
-    public $product;
     public $product_number;
     public $product_id;
     public $name;
@@ -67,14 +65,10 @@ class AdminProducts extends Component
         ];
     }
 
-    public function mount(){
-        $this->product = new Product();
-    }
-
     public function render()
     {
         if(auth()->user()->role == 1){
-            $products = Product::with('createdBy','updatedBy','category')->where('name', 'LIKE', '%' . $this->search . '%')
+            $products = Product::with('createdBy','updatedBy','category', 'extras')->where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('description', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('stock', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('purchase_price', 'LIKE', '%' . $this->search . '%')
@@ -92,10 +86,8 @@ class AdminProducts extends Component
 
             $extras = Extra::orderBy('name')->get();
 
-            $this->product_number = Product::where('created_by', 1)->latest()->first();
-
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $products = Product::with('createdBy','updatedBy','category')->where('establishment_id', '=', auth()->user()->establishment->id)
+            $products = Product::with('createdBy','updatedBy','category', 'extras')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('description', 'LIKE', '%' . $this->search . '%')
@@ -116,10 +108,9 @@ class AdminProducts extends Component
 
             $extras = Extra::where('establishment_id', '=', auth()->user()->establishment->id)->orderBy('name')->get();
 
-            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
         else{
-            $products = Product::with('createdBy','updatedBy','category')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $products = Product::with('createdBy','updatedBy','category', 'extras')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('description', 'LIKE', '%' . $this->search . '%')
@@ -140,7 +131,6 @@ class AdminProducts extends Component
 
             $extras = Extra::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->orderBy('name')->get();
 
-            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-products', compact('products', 'categories', 'extras'));
@@ -164,19 +154,16 @@ class AdminProducts extends Component
         $this->resetErrorBag();
         $this->resetValidation();
 
-        $this->product = Product::findorFail($product['id']);
-
         $this->product_id = $product['id'];
-
-        $this->name = $this->product->name;
-        $this->description = $this->product->description;
-        $this->stock = $this->product->stock;
-        $this->purchase_price = $this->product->purchase_price;
-        $this->sale_price = $this->product->sale_price;
-        $this->category_id = $this->product->category_id;
-        $this->image_url = $this->product->image_url;
-        foreach ($this->product->extras as $extra) {
-            array_push($this->selected_extras, (string)$extra->id);
+        $this->name = $product['name'];
+        $this->description = $product['description'];
+        $this->stock = $product['stock'];
+        $this->purchase_price = $product['purchase_price'];
+        $this->sale_price = $product['sale_price'];
+        $this->category_id = $product['category_id'];
+        $this->image_url = $product['image_url'];
+        foreach ($product['extras'] as $extra) {
+            array_push($this->selected_extras, (string)$extra['id']);
         }
 
         $this->dispatchBrowserEvent('openModal', ['stock' => $this->stock]);
@@ -196,107 +183,133 @@ class AdminProducts extends Component
         $this->reset('name','description','stock', 'purchase_price', 'sale_price', 'category_id', 'image', 'selected_extras');
         $this->modal = false;
         $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
     }
 
     public function create(){
 
         $this->validate();
 
-        $product = Product::create([
-            'product_number' => $this->product_number == null ? 1 : $this->product_number->product_number + 1,
-            'name' => $this->name,
-            'description' => $this->description,
-            'stock' => $this->stock,
-            'purchase_price' => $this->purchase_price,
-            'sale_price' => $this->sale_price,
-            'category_id' => $this->category_id,
-            'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
-
-        if($this->image != null){
-            $this->validate([
-                'image' => 'image|max:1024|mimes:jpeg,png,jpg',
-            ]);
-
-            $image_rute = $this->image->store('product_images', 'public');
-
-            $product->update(['image_url' => $image_rute]);
+        if(auth()->user()->role == 1){
+            $this->product_number = Product::where('created_by', 1)->latest()->first();
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
+            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+        }else{
+            $this->product_number = Product::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
+        try {
 
-        $product->extras()->attach($this->selected_extras);
+            $product = Product::create([
+                'product_number' => $this->product_number == null ? 1 : $this->product_number->product_number + 1,
+                'name' => $this->name,
+                'description' => $this->description,
+                'stock' => $this->stock,
+                'purchase_price' => $this->purchase_price,
+                'sale_price' => $this->sale_price,
+                'category_id' => $this->category_id,
+                'created_by' => auth()->user()->id,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
+
+            if($this->image != null){
+                $this->validate([
+                    'image' => 'image|max:1024|mimes:jpeg,png,jpg',
+                ]);
+
+                $image_rute = $this->image->store('product_images', 'public');
+
+                $product->update(['image_url' => $image_rute]);
+            }
 
 
-        $this->message = "El producto ha sido creado con exito.";
-        $this->emit('showMessage');
+            $product->extras()->attach($this->selected_extras);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "El producto ha sido creado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function update(){
 
-        /* $client = Client::findorFail($this->client_id); */
-
         $this->validate();
 
-        $this->product->update([
-            'name' => $this->name,
-            'description' => $this->description,
-            'stock' => $this->stock,
-            'purchase_price' => $this->purchase_price,
-            'sale_price' => $this->sale_price,
-            'category_id' => $this->category_id,
-            'updated_by' => auth()->user()->id,
-        ]);
+        $product = Product::findorFail($this->product_id);
 
-        if($this->image){
+        try {
 
-            $this->validate([
-                'image' => 'image|max:1024|mimes:jpeg,png,jpg',
+            $product->update([
+                'name' => $this->name,
+                'description' => $this->description,
+                'stock' => $this->stock,
+                'purchase_price' => $this->purchase_price,
+                'sale_price' => $this->sale_price,
+                'category_id' => $this->category_id,
+                'updated_by' => auth()->user()->id,
             ]);
 
-            $image_rute = $this->image->store('product_images', 'public');
+            if($this->image){
 
-            if($this->product->image_url){
+                $this->validate([
+                    'image' => 'image|max:1024|mimes:jpeg,png,jpg',
+                ]);
 
-                if(File::exists('storage/' . $this->product->image_url)){
-                    File::delete('storage/' . $this->product->image_url);
+                $image_rute = $this->image->store('product_images', 'public');
+
+                if($product->image_url){
+
+                    if(File::exists('storage/' . $product->image_url)){
+                        File::delete('storage/' . $product->image_url);
+                    }
+
+                    $product->update([
+                        'image_url' => $image_rute,
+                    ]);
+
+                }else{
+
+                    $product->update([
+                        'image_url' => $image_rute,
+                    ]);
                 }
 
-                $this->product->update([
-                    'image_url' => $image_rute,
-                ]);
-
-            }else{
-
-                $this->product->update([
-                    'image_url' => $image_rute,
-                ]);
             }
 
+            $product->extras()->sync($this->selected_extras);
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El producto ha sido actualizado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
         }
-
-        $this->product->extras()->sync($this->selected_extras);
-
-
-        $this->message = "El producto ha sido actualizado con exito.";
-        $this->emit('showMessage');
-
-        $this->closeModal();
     }
 
     public function delete(){
 
         $product = Product::findorFail($this->product_id);
-        $product->extras()->detach();
-        $product->delete();
 
-        $this->message = "El producto ha sido eliminado con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
+            $product->extras()->detach();
+            $product->delete();
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El producto ha sido eliminado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 }

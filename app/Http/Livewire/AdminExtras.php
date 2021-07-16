@@ -16,9 +16,8 @@ class AdminExtras extends Component
 
     public $modal = false;
     public $modalDelete = false;
-    public $create = false;
+    public $createBtn = false;
     public $edit = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
@@ -64,7 +63,7 @@ class AdminExtras extends Component
                             ->paginate(10);
 
             $products = Product::where('stock', -1)->orderBy('name')->get();
-            $this->extra_number = Extra::where('created_by', 1)->latest()->first();
+
 
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $extras = Extra::with('products','createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
@@ -76,7 +75,7 @@ class AdminExtras extends Component
                             ->paginate(10);
 
             $products = Product::where('establishment_id', '=', auth()->user()->establishment->id)->where('stock', -1)->orderBy('name')->get();
-            $this->extra_number = Extra::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+
         }
         else{
             $extras = Extra::with('products','createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
@@ -88,7 +87,7 @@ class AdminExtras extends Component
                             ->paginate(10);
 
             $products = Product::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->where('stock', -1)->orderBy('name')->get();
-            $this->extra_number = Extra::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+
         }
 
         return view('livewire.admin-extras', compact('extras', 'products'));
@@ -101,7 +100,7 @@ class AdminExtras extends Component
         $this->resetValidation();
 
         $this->edit = false;
-        $this->create = true;
+        $this->createBtn = true;
         $this->modal = true;
     }
 
@@ -110,16 +109,14 @@ class AdminExtras extends Component
         $this->resetErrorBag();
         $this->resetValidation();
 
-        $this->extra = Extra::findorFail($extra['id']);
-
         $this->extra_id = $extra['id'];
-        $this->name = $this->extra->name;
-        $this->price = $this->extra->price;
-        foreach ($this->extra->products as $product) {
-            array_push($this->selected_products, (string)$product->id);
+        $this->name = $extra['name'];
+        $this->price = $extra['price'];
+        foreach ($extra['products'] as $product) {
+            array_push($this->selected_products, (string)$product['id']);
         }
 
-        $this->create = false;
+        $this->createBtn = false;
         $this->edit = true;
         $this->modal = true;
     }
@@ -132,61 +129,89 @@ class AdminExtras extends Component
 
     public function closeModal(){
         $this->reset('name','price','selected_products');
-        $this->modal = false;
         $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
+        $this->modal = false;
     }
 
     public function create(){
 
         $this->validate();
 
-        $extra = Extra::create([
-            'extra_number' => $this->extra_number == null ? 1 : $this->extra_number->extra_number + 1,
-            'name' => $this->name,
-            'price' => $this->price,
-            'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
+        if(auth()->user()->role == 1){
+            $this->extra_number = Extra::where('created_by', 1)->latest()->first();
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
+            $this->extra_number = Extra::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+        }else{
+            $this->extra_number = Extra::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+        }
 
-        $extra->products()->attach($this->selected_products);
+        try {
 
+            $extra = Extra::create([
+                'extra_number' => $this->extra_number == null ? 1 : $this->extra_number->extra_number + 1,
+                'name' => $this->name,
+                'price' => $this->price,
+                'created_by' => auth()->user()->id,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
 
-        $this->message = "El extra ha sido creado con exito.";
-        $this->emit('showMessage');
+            $extra->products()->attach($this->selected_products);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "El extra ha sido creado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function update(){
 
         $this->validate();
 
-        $this->extra->update([
-            'name' => $this->name,
-            'price' => $this->price,
-            'updated_by' => auth()->user()->id,
-        ]);
+        $extra = Extra::findorFail($this->extra_id);
 
-        $this->extra->products()->sync($this->selected_products);
+        try {
+            $extra->update([
+                'name' => $this->name,
+                'price' => $this->price,
+                'updated_by' => auth()->user()->id,
+            ]);
 
+            $extra->products()->sync($this->selected_products);
 
-        $this->message = "El extra ha sido actualizado con exito.";
-        $this->emit('showMessage');
+            /* $this->closeModal(); */
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "El extra ha sido actualizado con exito."]);
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function delete(){
 
         $extra = Extra::findorFail($this->extra_id);
-        $extra->extras()->detach();
-        $extra->delete();
 
-        $this->message = "El extra ha sido eliminado con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
+            $extra->extras()->detach();
+            $extra->delete();
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El extra ha sido eliminado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
+
     }
 }

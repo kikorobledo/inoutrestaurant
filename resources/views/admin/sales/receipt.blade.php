@@ -8,13 +8,22 @@
 </head>
 
 <style>
+
+    @page{
+        size:58mm 210mm;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
     #wrapper{
-        width: 280px;
+        width: 58mm;
         margin: 0 auto;
+        margin-left: -37px
         color: #000;
         font-family: Arial,Helvetica;
         font-size: 12px;
     }
+
     #restaurant-name,
     .receipt-header,
     #receipt-footer p{
@@ -23,9 +32,19 @@
         line-height: .2;
     }
 
+    .receipt-body{
+        max-width: 100%;
+    }
+
     .receipt-data p,{
         margin-bottom: 10;
         line-height: .2;
+    }
+
+    .tb-sale-detail,
+    .tb-sale-total{
+        font-size: 10px;
+        margin: 12px 12px 12px 0;
     }
 
     .tb-sale-detail,
@@ -45,10 +64,15 @@
 
     .tb-sale-detail td{
         text-align: right;
+
     }
 
     .tb-sale-detail td:nth-child(1){
         text-align: left;
+    }
+
+    .tb-sale-detail td:nth-child(2){
+        text-align: center;
     }
 
     .tb-sale-detail td:nth-child(1) .extras p{

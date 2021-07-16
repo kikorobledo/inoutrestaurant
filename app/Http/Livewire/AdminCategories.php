@@ -14,7 +14,6 @@ class AdminCategories extends Component
     public $modalDelete = false;
     public $create = false;
     public $edit = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
@@ -43,7 +42,7 @@ class AdminCategories extends Component
 
     protected function rules(){
         return[
-            'name' => 'required|unique:categories',
+            'name' => 'required',
         ];
     }
 
@@ -54,7 +53,7 @@ class AdminCategories extends Component
             $categories = Category::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
                                 ->orderBy($this->sort, $this->direction)
                                 ->paginate(10);
-            $this->category_number = Category::where('created_by', 1)->latest()->first();
+
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
@@ -62,7 +61,7 @@ class AdminCategories extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+
         }else{
             $categories = Category::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
@@ -70,7 +69,7 @@ class AdminCategories extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+
         }
 
         return view('livewire.admin-categories', compact('categories'));
@@ -97,10 +96,7 @@ class AdminCategories extends Component
         $this->edit = true;
 
         $this->category_id = $category['id'];
-
-        $category = Category::findorFail($this->category_id);
-
-        $this->name = $category->name;
+        $this->name = $category['name'];
     }
 
     public function openModalDelete($category){
@@ -109,21 +105,41 @@ class AdminCategories extends Component
         $this->category_id = $category['id'];
     }
 
+    public function closeModal(){
+        $this->reset('name');
+        $this->modal = false;
+        $this->modalDelete = false;
+    }
+
     public function create(){
 
         $this->validate();
 
-        $category = Category::create([
-            'category_number' => $this->category_number == null ? 1 : $this->category_number->category_number + 1,
-            'name' => $this->name,
-            'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
+        if(auth()->user()->role == 1){
+            $this->category_number = Category::where('created_by', 1)->latest()->first();
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
+            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+        }else{
+            $this->category_number = Category::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+        }
 
-        $this->message = "La categoría ha sido creada con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
+            $category = Category::create([
+                'category_number' => $this->category_number == null ? 1 : $this->category_number->category_number + 1,
+                'name' => $this->name,
+                'created_by' => auth()->user()->id,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
+
+            $this->dispatchBrowserEvent('showMessage',['success', "La categoría ha sido creada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+            $this->closeModal();
+        }
     }
 
     public function update(){
@@ -132,33 +148,40 @@ class AdminCategories extends Component
 
         $this->validate();
 
-        $category->update([
-            'name' => $this->name,
-            'updated_by' => auth()->user()->id,
-        ]);
+        try {
 
-        $this->message = "La categoría ha sido actualizada con exito.";
-        $this->emit('showMessage');
+            $category->update([
+                'name' => $this->name,
+                'updated_by' => auth()->user()->id,
+            ]);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "La categoría ha sido actualizada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function delete(){
 
         $category = Category::findorFail($this->category_id);
-        $category->delete();
 
-        $this->message = "La categoría ha sido eliminada con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
-    }
+            $category->delete();
 
-    public function closeModal(){
-        $this->reset('name');
-        $this->modal = false;
-        $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
+            $this->dispatchBrowserEvent('showMessage',['success', "La categoría ha sido eliminada con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 }

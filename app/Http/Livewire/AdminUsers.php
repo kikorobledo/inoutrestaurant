@@ -17,7 +17,6 @@ class AdminUsers extends Component
     public $modalDelete = false;
     public $create = false;
     public $edit = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
@@ -59,7 +58,7 @@ class AdminUsers extends Component
     public function render()
     {
         if(auth()->user()->role == 1){
-            $users = User::with('createdBy','updatedBy')->where('name', 'LIKE', '%' . $this->search . '%')
+            $users = User::with('createdBy','updatedBy','roles')->where('name', 'LIKE', '%' . $this->search . '%')
                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
                             ->orWhere(function($q){
                                 return $q->whereHas('roles', function($q){
@@ -68,9 +67,8 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->user_number = User::where('created_by', 1)->latest()->first();
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
-            $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
+            $users = User::with('createdBy','updatedBy','roles')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
@@ -82,10 +80,10 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+
         }
         else{
-            $users = User::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
+            $users = User::with('createdBy','updatedBy','roles')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
                             ->where(function($q){
                                 return $q->where('name', 'LIKE', '%' . $this->search . '%')
                                             ->orWhere('email', 'LIKE', '%' . $this->search . '%')
@@ -97,7 +95,6 @@ class AdminUsers extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-users', compact('users'));
@@ -124,13 +121,10 @@ class AdminUsers extends Component
         $this->edit = true;
 
         $this->user_id = $user['id'];
-
-        $user = User::findorFail($this->user_id);
-
-        $this->role = $user->role;
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->status = $user->status;
+        $this->role = $user['roles'][0]['id'];
+        $this->name = $user['name'];
+        $this->email = $user['email'];
+        $this->status = $user['status'];
     }
 
     public function openModalDelete($user){
@@ -139,31 +133,52 @@ class AdminUsers extends Component
         $this->user_id = $user['id'];
     }
 
+    public function closeModal(){
+        $this->reset('name','email','status', 'role', 'user_id');
+        $this->modal = false;
+        $this->modalDelete = false;
+    }
+
     public function create(){
 
         $this->validate();
 
-        $user = User::create([
-            'user_number' => $this->user_number == null ? 1 : $this->user_number->user_number + 1,
-            'name' => $this->name,
-            'email' => $this->email,
-            'status' => $this->status,
-            'password' => 'password',
-            'created_by' => auth()->user()->id,
-            'role' => $this->role,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
+        if(auth()->user()->role == 1){
+            $this->user_number = User::where('created_by', 1)->latest()->first();
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
+            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+        }else{
+            $this->user_number = User::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+        }
 
-        $user->roles()->attach($this->role);
+        try {
 
-        $url = URL::signedRoute('invitation', $user);
+            $user = User::create([
+                'user_number' => $this->user_number == null ? 1 : $this->user_number->user_number + 1,
+                'name' => $this->name,
+                'email' => $this->email,
+                'status' => $this->status,
+                'password' => 'password',
+                'created_by' => auth()->user()->id,
+                'role' => $this->role,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
 
-        $user->notify(new EmployeeNotification($url, auth()->user()));
+            $user->roles()->attach($this->role);
 
-        $this->message = "El usuario ha sido creado con exito.";
-        $this->emit('showMessage');
+            $url = URL::signedRoute('invitation', $user);
 
-        $this->closeModal();
+            $user->notify(new EmployeeNotification($url, auth()->user()));
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El usuario ha sido creado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function update(){
@@ -172,39 +187,47 @@ class AdminUsers extends Component
 
         $this->validate();
 
-        $user->update([
-            'name' => $this->name,
-            'email' => $this->email,
-            'status' => $this->status,
-            'role' => $this->role,
-            'updated_by' => auth()->user()->id,
-        ]);
+        try {
 
-        $user->roles()->sync($this->role);
+            $user->update([
+                'name' => $this->name,
+                'email' => $this->email,
+                'status' => $this->status,
+                'role' => $this->role,
+                'updated_by' => auth()->user()->id,
+            ]);
 
-        $this->message = "El usuario ha sido actualizado con exito.";
-        $this->emit('showMessage');
+            $user->roles()->sync($this->role);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "El usuario ha sido actualizado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
+
     }
 
     public function delete(){
 
         $user = User::findorFail($this->user_id);
-        $user->delete();
 
-        $this->message = "El usuario ha sido eliminado con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
-    }
+            $user->delete();
 
-    public function closeModal(){
-        $this->reset('name','email','status', 'role', 'user_id');
-        $this->modal = false;
-        $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
+            $this->dispatchBrowserEvent('showMessage',['success', "El usuario ha sido eliminado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
 }

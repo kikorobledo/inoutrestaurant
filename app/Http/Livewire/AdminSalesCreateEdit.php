@@ -94,7 +94,7 @@ class AdminSalesCreateEdit extends Component
 
             $products = Product::where('stock', '!=', 0)->get();
 
-            $tables = Table::all();
+            $tables = Table::where('status', 'available')->get();
 
             $this->sale_number = Sale::latest()->first();
 
@@ -114,7 +114,7 @@ class AdminSalesCreateEdit extends Component
                                 ->where('stock', '!=', 0)
                                 ->get();
 
-            $tables = Table::where('establishment_id', '=', auth()->user()->establishment->id)->orderBy('name')->get();
+            $tables = Table::where('establishment_id', '=', auth()->user()->establishment->id)->where('status', 'available')->orderBy('name')->get();
 
             $this->sale_number = Sale::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
         }
@@ -134,7 +134,7 @@ class AdminSalesCreateEdit extends Component
                                 ->where('stock', '!=', 0)
                                 ->get();
 
-            $tables = Table::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->orderBy('name')->get();
+            $tables = Table::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->where('status', 'available')->orderBy('name')->get();
 
             $this->sale_number = Sale::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
@@ -219,6 +219,8 @@ class AdminSalesCreateEdit extends Component
                 'created_by' => auth()->user()->id
             ]);
 
+            $this->sale->table->update(['status' => 'unavailable']);
+
             $this->saleDetail = SaleDetail::create([
                 'sale_id' => $this->sale->id,
                 'product_name' => $product->name,
@@ -253,6 +255,7 @@ class AdminSalesCreateEdit extends Component
         }else{
 
             $extras = [];
+            $total_extras = 0;
 
             foreach($this->sale->saleDetails as $saleDetail){
 
@@ -269,13 +272,22 @@ class AdminSalesCreateEdit extends Component
                         'status' => 'not_confirmed'
                     ]);
 
-                    if($product->stock != -1)
+                    if($product->stock != -1){
+
                         $product->update(['stock' => $product->stock - 1]);
 
-                    $this->sale->update([
-                        'total_price' => $this->sale->total_price + $product->sale_price,
-                        'updated_by' => auth()->user()->id,
-                    ]);
+                        $this->sale->update([
+                            'total_price' => $this->sale->total_price + $product->sale_price,
+                            'updated_by' => auth()->user()->id,
+                        ]);
+
+                    }else{
+
+                        $this->sale->update([
+                            'total_price' => $this->sale->total_price + $temp->product_price,
+                            'updated_by' => auth()->user()->id,
+                        ]);
+                    }
 
                     $this->saleDetails = $temp->sale->saleDetails;
 
@@ -296,9 +308,11 @@ class AdminSalesCreateEdit extends Component
                 'quantity' => 1,
             ]);
 
-            if($product->stock != -1)
+            if($product->stock != -1){
+
                 $product->update(['stock' => $product->stock - 1]);
-            else{
+
+            }else{
                 if(count($this->selected_extras) > 0){
 
                     $this->saleDetail->extras()->attach($this->selected_extras);
@@ -340,6 +354,13 @@ class AdminSalesCreateEdit extends Component
     }
 
     public function updateTable($table_name, $table_id){
+
+        if($this->table_id != null){
+
+            Table::find($this->table_id)->update(['status' => 'available']);
+
+        }
+
         $this->table_id = $table_id;
         $this->table_name = $table_name;
 
@@ -350,7 +371,11 @@ class AdminSalesCreateEdit extends Component
                     'table_name' => $this->table_name,
                     'updated_by' => auth()->user()->id
                 ]);
+
+            if($this->table_id != null)
+                Table::find($this->table_id)->update(['status' => 'unavailable']);
         }
+
     }
 
     public function updateClient($client_name, $client_id){
@@ -376,6 +401,8 @@ class AdminSalesCreateEdit extends Component
         if($val == 1){
 
             if($product->stock == 0){
+
+                $this->dispatchBrowserEvent('showMessage',['warning', "No hay mas stock del producto."]);
 
                 return;
             }
@@ -444,8 +471,12 @@ class AdminSalesCreateEdit extends Component
 
         if(count($this->sale->saleDetails) === 0){
 
-            if(!$this->sale_edit)
+            if(!$this->sale_edit){
+
                 $this->sale->delete();
+                $this->sale->table->update(['status' => 'available']);
+
+            }
 
             $this->sale = null;
             $this->saleDetails = null;
@@ -486,10 +517,7 @@ class AdminSalesCreateEdit extends Component
     public function pay(){
 
         if($this->payment_type == 'card'){
-            $this->validateOnly('payment_type',[
-                'payment_type' => 'required'
-            ]);
-            $this->total_recived = 0;
+            $this->total_recived = $this->sale->total_price;
             $this->change = 0;
         }else{
             $this->validate();
@@ -501,6 +529,9 @@ class AdminSalesCreateEdit extends Component
             'change' => $this->change,
             'status' => 'paid_out'
         ]);
+
+        if($this->table_id != null)
+            Table::find($this->table_id)->update(['status' => 'available']);
 
         $this->dispatchBrowserEvent('pirnt-ticket', ['sale' => $this->sale->id]);
     }

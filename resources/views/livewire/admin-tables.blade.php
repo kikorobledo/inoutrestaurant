@@ -255,14 +255,29 @@
 
                     <div class="text-center rounded-3xl shadow-2xl py-3 px-3 mb-4 bg-white">
 
-                            <div class="flex justify-center mb-2 mt-2">
-                                {{-- <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                                </svg> --}}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
-                                </svg>
-                            </div>
+                            @if(auth()->user()->roles[0]->name == 'Administrador Tienda' || auth()->user()->roles[0]->name == 'Administrador')
+                                <div class="flex justify-between mr-2 ml-2">
+
+                                    <span class="bg-blue-400 text-white p-2 rounded-full cursor-pointer" wire:click="openModalEdit({{$table}})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </span>
+
+                                    <span class="bg-red-400 text-white p-2 rounded-full cursor-pointer" wire:click="openModalDelete({{$table}})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </span>
+
+                                </div>
+
+                                <div class="flex justify-center mb-2 mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                                    </svg>
+                                </div>
+                            @endif
 
                             <p class="mb-2">{{ $table->name }}</p>
 
@@ -272,7 +287,7 @@
 
                                     <div class="bg-green-400 py-1 px-4 text-white text-sm rounded-full mb-1">Disponible</div>
 
-                                    <a href="{{ route('admin.tables.show', $table) }}" class="bg-gray-500 py-1 block px-4 text-white text-sm rounded-full cursor-pointer">Agregar orden</a>
+                                    <a href="{{ route('admin.tables.create', $table) }}" class="bg-gray-500 py-1 block px-4 text-white text-sm rounded-full cursor-pointer">Agregar venta</a>
 
                                 </div>
 
@@ -282,7 +297,7 @@
 
                                     <div class="bg-red-400 py-1 px-4 text-white text-sm rounded-full mb-1">Ocupada</div>
 
-                                    <a href="{{ route('admin.tables.show', $table) }}" class="bg-gray-500 py-1 block px-4 text-white text-sm rounded-full cursor-pointer">Ver orden</a>
+                                    <a href="{{ route('admin.sales.edit', $table->activeSale[0]->id)}}" class="bg-gray-500 py-1 block px-4 text-white text-sm rounded-full cursor-pointer">Ver venta</a>
 
                                 </div>
 
@@ -321,7 +336,7 @@
                         <Label>Nombre</Label>
                     </div>
                     <div>
-                        <input type="text" class="bg-white rounded text-sm w-full" wire:model="name">
+                        <input type="text" class="bg-white rounded text-sm w-full" wire:model.defer="name">
                     </div>
                     <div>
                         @error('name') <span class="error text-sm text-red-500">{{ $message }}</span> @enderror
@@ -340,7 +355,6 @@
                     <button
                         wire:click="create"
                         wire:loading.attr="disabled"
-                        wire:target="create, image"
                         class="disabled:opacity-25 bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
                         Guardar
                     </button>
@@ -352,7 +366,6 @@
                     <button
                         wire:click="update"
                         wire:loading.attr="disabled"
-                        wire:target="update, image"
                         class="disabled:opacity-25 bg-blue-400 hover:shadow-lg text-white font-bold px-4 py-2 rounded-full text-sm mb-2 hover:bg-blue-700 flaot-left mr-1 focus:outline-none">
                         Actualizar
                     </button>
@@ -373,11 +386,11 @@
 
     <x-jet-confirmation-modal wire:model="modalDelete">
         <x-slot name="title">
-            Eliminar Cliente
+            Eliminar Mesa
         </x-slot>
 
         <x-slot name="content">
-            ¿Esta seguro que desea eliminar el producto?, No sera posible recuperar la información.
+            ¿Esta seguro que desea eliminar la mesa?, No sera posible recuperar la información.
         </x-slot>
 
         <x-slot name="footer">
@@ -393,24 +406,24 @@
 
     <script>
 
-        function click(){
-            return{
-                selectOption:"",
-                input:false,
-                read(){
-
-                    if(this.selectOption == "alimento"){
-                        this.input = true;
-                        this.$wire.set('stock', -1)
-
-                    }
-                    if(this.selectOption == "unidades"){
-                        this.input = false;
-                    }
+        window.addEventListener('showMessage', event => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
-            }
-        }
+            })
 
+            Toast.fire({
+                icon: event.detail[0],
+                title: event.detail[1]
+            })
+        })
 
     </script>
 

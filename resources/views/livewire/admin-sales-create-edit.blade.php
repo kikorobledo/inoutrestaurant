@@ -45,6 +45,8 @@
 
                                     @if($sale_edit)
                                         <p class="text-black">{{ $table_name }}</p>
+                                    @elseif($table_name)
+                                        <p class="text-black">{{$table_name}}</p>
                                     @else
                                         <p class="text-black" x-text="placeholder"></p>
                                     @endif
@@ -59,6 +61,12 @@
                         </div>
 
                         <div class="mt-0.5 w-full bg-white border-gray-300 rounded-b-md border absolute top-full left-0 z-30" x-show="open">
+
+                            <div class="relative z-30 w-full p-2 bg-white">
+
+                                <input placeholder="Buscar.." type="text" x-model="search" x-on:click.prevent.stop="open=true" class="block w-full  border border-gray-300 rounded-md focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 sm:text-sm sm:leading-5">
+
+                            </div>
 
                             <ul class="h-full p-2 w-full flex flex-col">
                                 <template x-for="table in Object.values(options)">
@@ -360,13 +368,13 @@
                                     </div>
                                 </td>
                                 <td class=" w-full p-3 text-gray-800 text-center hidden xl:block">
-                                    ${{ $product->sale_price }}
+                                    ${{ number_format($product->sale_price,2) }}
                                 </td>
                                 <td class=" w-full lg:w-auto p-3 text-gray-800 text-center ">
 
                                     <div class="flex justify-center lg:justify-start">
 
-                                        <button wire:click="openModalExtras({{$product->id}})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none">
+                                        <button wire:loading.attr="disabled" wire:click="openModalExtras({{$product->id}})"  class="bg-green-400 hover:shadow-lg text-white  text-xs md:text-sm px-3 py-2 rounded-full mr-2 hover:bg-green-700 flex focus:outline-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -417,10 +425,7 @@
                 <div class="flex flex-wrap overflow-y-auto max-h-60">
                     @foreach($product_->extras as $extra)
 
-{{--                    <label class="border border-gray-500 px-2 rounded-full py-1 mr-2 mb-1 cursor-pointer text-xs">
-                            <input class="bg-white rounded" type="checkbox" wire:model="selected_extras" value="{{ $extra->id }}">
-                            {{ $extra->name }} / ${{$extra->price}}
-                        </label> --}}
+
 
                         <label class="mr-2 text-sm">
 
@@ -511,7 +516,7 @@
                                 $
                                 </span>
                             </div>
-                            <input type="number" class="bg-white rounded text-sm w-full pl-7 " wire:keyup="calculateChange" wire:model="total_recived" placeholder="0.00" min="0">
+                            <input @if($payment_type == 'card') readonly @endif type="number" class="bg-white rounded text-sm w-full pl-7 " wire:keyup="calculateChange" wire:model="total_recived" placeholder="0.00" min="0">
                         </div>
                     </div>
                     <div>
@@ -637,6 +642,25 @@
 
             if(event.detail.table_id == null)
                 document.getElementById('table_null_icon').classList.remove('hidden');
+        })
+
+        window.addEventListener('showMessage', event => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: event.detail[0],
+                title: event.detail[1]
+            })
         })
 
         let logComponentsData = function () {

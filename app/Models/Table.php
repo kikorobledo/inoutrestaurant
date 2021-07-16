@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use App\Models\Sale;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,10 @@ class Table extends Model
 
     public function updatedBy(){
         return $this->belongsTo(User::class, 'updated_by')->withTrashed();
+    }
+
+    public function activeSale(){
+        return $this->hasMany(Sale::class)->where('status', 'unpaid');
     }
 
     public function getCreatedAtAttribute(){

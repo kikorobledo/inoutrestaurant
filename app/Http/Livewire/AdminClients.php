@@ -15,7 +15,6 @@ class AdminClients extends Component
     public $modalDelete = false;
     public $create = false;
     public $edit = false;
-    public $message;
     public $search;
     public $sort = 'id';
     public $direction = 'desc';
@@ -60,7 +59,7 @@ class AdminClients extends Component
                             ->orWhere('telephone', 'LIKE', '%' . $this->search . '%')
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->client_number = Client::where('created_by', 1)->latest()->first();
+
         }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
             $clients = Client::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishment->id)
                             ->where(function($q){
@@ -70,7 +69,7 @@ class AdminClients extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+
         }
         else{
             $clients = Client::with('createdBy','updatedBy')->where('establishment_id', '=', auth()->user()->establishmentBelonging->id)
@@ -81,7 +80,6 @@ class AdminClients extends Component
                             })
                             ->orderBy($this->sort, $this->direction)
                             ->paginate(10);
-            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
         }
 
         return view('livewire.admin-clients', compact('clients'));
@@ -108,12 +106,9 @@ class AdminClients extends Component
         $this->edit = true;
 
         $this->client_id = $client['id'];
-
-        $client = Client::findorFail($this->client_id);
-
-        $this->name = $client->name;
-        $this->email = $client->email;
-        $this->telephone = $client->telephone;
+        $this->name = $client['name'];
+        $this->email = $client['email'];
+        $this->telephone = $client['telephone'];
     }
 
     public function openModalDelete($client){
@@ -126,27 +121,40 @@ class AdminClients extends Component
         $this->reset('name','email','telephone', 'client_id');
         $this->modal = false;
         $this->modalDelete = false;
-        $this->create = false;
-        $this->edit = false;
     }
 
     public function create(){
 
         $this->validate();
 
-        $client = Client::create([
-            'client_number' => $this->client_number == null ? 1 : $this->client_number->client_number + 1,
-            'name' => $this->name,
-            'email' => $this->email,
-            'telephone' => $this->telephone,
-            'created_by' => auth()->user()->id,
-            'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
-        ]);
+        if(auth()->user()->role == 1){
+            $this->client_number = Client::where('created_by', 1)->latest()->first();
+        }elseif(auth()->user()->role == 2 && auth()->user()->establishment != null){
+            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishment->id)->latest()->first();
+        }else{
+            $this->client_number = Client::where('establishment_id', '=', auth()->user()->establishmentBelonging->id)->latest()->first();
+        }
 
-        $this->message = "El cliente ha sido creado con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
+            $client = Client::create([
+                'client_number' => $this->client_number == null ? 1 : $this->client_number->client_number + 1,
+                'name' => $this->name,
+                'email' => $this->email,
+                'telephone' => $this->telephone,
+                'created_by' => auth()->user()->id,
+                'establishment_id' => auth()->user()->establishment ? auth()->user()->establishment->id : auth()->user()->establishmentBelonging->id
+            ]);
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El cliente ha sido creado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 
     public function update(){
@@ -155,27 +163,43 @@ class AdminClients extends Component
 
         $this->validate();
 
-        $client->update([
-            'name' => $this->name,
-            'email' => $this->email,
-            'telephone' => $this->telephone,
-            'updated_by' => auth()->user()->id,
-        ]);
+        try {
 
-        $this->message = "El cliente ha sido actualizado con exito.";
-        $this->emit('showMessage');
+            $client->update([
+                'name' => $this->name,
+                'email' => $this->email,
+                'telephone' => $this->telephone,
+                'updated_by' => auth()->user()->id,
+            ]);
 
-        $this->closeModal();
+            $this->dispatchBrowserEvent('showMessage',['success', "El cliente ha sido actualizado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
+
     }
 
     public function delete(){
 
         $client = Client::findorFail($this->client_id);
-        $client->delete();
 
-        $this->message = "El cliente ha sido eliminado con exito.";
-        $this->emit('showMessage');
+        try {
 
-        $this->closeModal();
+            $client->delete();
+
+            $this->dispatchBrowserEvent('showMessage',['success', "El cliente ha sido eliminado con exito."]);
+
+            $this->closeModal();
+
+        } catch (\Throwable $th) {
+            $this->dispatchBrowserEvent('showMessage',['error', "Lo sentimos hubo un error inténtalo de nuevo"]);
+
+            $this->closeModal();
+        }
     }
 }

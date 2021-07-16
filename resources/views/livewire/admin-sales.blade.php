@@ -12,22 +12,7 @@
 
     <div class="mb-5">
 
-        <div
-            class="flex justify-between mb-5"
-            x-data="{show:false}"
-            x-init="@this.on('showMessage', () => { show=true, setTimeout( () => {show=false;}, 4000 ) })"
-        >
-
-            <h1 class="titulo-seccion text-3xl font-thin text-gray-500">Ventas</h1>
-
-            <span
-                class="bg-green-500 py-2 px-4 text-white text-md rounded-full float-right"
-                x-show.transition.opacity.out.duration.1500ms="show"
-            >
-                {{ $message }}
-            </span>
-
-        </div>
+        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-5">Ventas</h1>
 
         <div>
 
@@ -597,6 +582,29 @@
             </x-jet-danger-button>
         </x-slot>
     </x-jet-confirmation-modal>
+
+    <script>
+
+        window.addEventListener('showMessage', event => {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: event.detail[0],
+                title: event.detail[1]
+            })
+        })
+
+    </script>
 
     <script>
         let logComponentsData = function () {

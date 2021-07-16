@@ -15,4 +15,8 @@ class TableController extends Controller
     public function show(Table $table){
         return view('admin.tables.show', compact('table'));
     }
+
+    public function create(Table $table){
+        return view('admin.tables.create', compact('table'));
+    }
 }
