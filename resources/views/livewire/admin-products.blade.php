@@ -221,7 +221,7 @@
                             <div class="flex items-center justify-center lg:justify-start">
                                 <div class="flex-shrink-0 ">
                                     @if($product->image_url)
-                                        <img class="w-10 lg:w-20 rounded" src="/storage/{{ $product->image_url }}" alt="{{ $product->name }}">
+                                        <img class="w-10 lg:w-20 rounded" src="asset('/storage/{{ $product->image_url }}' )" alt="{{ $product->name }}">
                                     @else
                                         <img class="w-10 lg:w-20 rounded" src="{{ asset('storage/img/icono.png') }}" alt="{{ $product->name }}">
                                     @endif

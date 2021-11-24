@@ -2,7 +2,7 @@
 
     <div class="mb-5">
 
-        <h1 class="titulo-seccion text-3xl font-thin text-gray-500mb-5">Extras</h1>
+        <h1 class="titulo-seccion text-3xl font-thin text-gray-500 mb-5">Extras</h1>
 
         <div>
 

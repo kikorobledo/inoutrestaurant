@@ -219,7 +219,8 @@ class AdminSalesCreateEdit extends Component
                 'created_by' => auth()->user()->id
             ]);
 
-            $this->sale->table->update(['status' => 'unavailable']);
+            if($this->table_id != null)
+                $this->sale->table->update(['status' => 'unavailable']);
 
             $this->saleDetail = SaleDetail::create([
                 'sale_id' => $this->sale->id,
